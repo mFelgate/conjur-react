@@ -1,15 +1,41 @@
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom'
-import { AppBar, Toolbar, Typography, Button } from '@mui/material'
-import { AuthProvider } from './auth/AuthContext'
-import { useAuth } from './auth/useAuth'
-import ProtectedRoute from './components/ProtectedRoute'
-import Login from './pages/Login'
-import AuthenticatorDetails from './pages/authenticators/AuthenticatorDetails.jsx'
-import Authenticators from './pages/Authenticators'
-import Policy from './pages/Policy'
-import Resources from './pages/Resources'
-import Secrets from './pages/Secrets'
-import './App.css'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Drawer,
+  Box,
+  List,
+  ListItemButton,
+  ListItemText,
+} from "@mui/material";
+import { AuthProvider } from "./auth/AuthContext";
+import { useAuth } from "./auth/useAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import AuthenticatorDetails from "./pages/authenticators/AuthenticatorDetails.jsx";
+import AuthenticatorForm from "./pages/authenticators/CreateAuthenticator.jsx";
+import Authenticators from "./pages/authenticators/Authenticators.jsx";
+import Policies from "./pages/policies/Policy";
+import PolicyDetails from "./pages/policies/policyDetails.jsx";
+import PolicyLoad from "./pages/policies/PolicyLoad.jsx";
+import Resources from "./pages/resources/Resources.jsx";
+import ResourceDetail from "./pages/resources/ResourceDetails.jsx";
+import Secrets from "./pages/secrets/Secrets.jsx";
+import Groups from "./pages/members/Groups.jsx";
+import GroupDetails from "./pages/members/GroupDetails.jsx";
+import SecretDetails from "./pages/secrets/SecretDetails.jsx";
+import "./App.css";
+
+const drawerWidth = 180;
 
 function App() {
   return (
@@ -18,77 +44,193 @@ function App() {
         <AppShell />
       </BrowserRouter>
     </AuthProvider>
-  )
+  );
 }
 
-function AppShell() {
-  const { isAuthenticated, logout } = useAuth()
+function NavBar() {
+  const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const showNavbar = isAuthenticated && location.pathname !== "/login";
+
+  if (!showNavbar) {
+    return null;
+  }
 
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
-            MyApp
-          </Typography>
-          <Button color="inherit" component={Link} to="/resources">Resources</Button>
-          <Button color="inherit" component={Link} to="/authenticators">Authenticators</Button>
-          <Button color="inherit" component={Link} to="/policy">Policy</Button>
-          <Button color="inherit" component={Link} to="/secrets">Secrets</Button>
-          {isAuthenticated ? (
-            <Button color="inherit" onClick={logout}>Logout</Button>
-          ) : (
-            <Button color="inherit" component={Link} to="/login">Login</Button>
-          )}
-        </Toolbar>
-      </AppBar>
+      {showNavbar && (
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+            },
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6">CONJUR</Typography>
+          </Toolbar>
 
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to="/resources" replace />} />
-        <Route
-          path="/resources"
-          element={
-            <ProtectedRoute>
-              <Resources />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/authenticators"
-          element={
-            <ProtectedRoute>
-              <Authenticators />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/authenticators/:type/:name"
-          element={
-            <ProtectedRoute>
-              <AuthenticatorDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/policy"
-          element={
-            <ProtectedRoute>
-              <Policy />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/secrets"
-          element={
-            <ProtectedRoute>
-              <Secrets />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          <List>
+            <ListItemButton component={Link} to="/resources">
+              <ListItemText primary="Resources" />
+            </ListItemButton>
+
+            <ListItemButton component={Link} to="/secrets">
+              <ListItemText primary="Secrets" />
+            </ListItemButton>
+
+            <ListItemButton component={Link} to="/groups">
+              <ListItemText primary="Groups" />
+            </ListItemButton>
+
+            <ListItemButton component={Link} to="/authenticators">
+              <ListItemText primary="Authenticators" />
+            </ListItemButton>
+
+            <ListItemButton component={Link} to="/policy">
+              <ListItemText primary="Policy" />
+            </ListItemButton>
+
+            {isAuthenticated ? (
+              <ListItemButton onClick={logout}>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
+            ) : (
+              <ListItemButton onClick={login}>
+                <ListItemText primary="Login" />
+              </ListItemButton>
+            )}
+          </List>
+        </Drawer>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+function AppShell() {
+  const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+  const showNavbar = isAuthenticated && location.pathname !== "/login";
+
+  return (
+    <>
+      <Box sx={{ display: "flex" }}>
+        <NavBar />
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 3,
+          }}
+        >
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/resources" replace />} />
+            <Route
+              path="/resources"
+              element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources/:kind/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <ResourceDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/authenticators"
+              element={
+                <ProtectedRoute>
+                  <Authenticators />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/authenticators/:type/:name"
+              element={
+                <ProtectedRoute>
+                  <AuthenticatorDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/policy"
+              element={
+                <ProtectedRoute>
+                  <Policies />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/policy/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <PolicyDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/policy/load"
+              element={
+                <ProtectedRoute>
+                  <PolicyLoad />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/authenticators/create"
+              element={
+                <ProtectedRoute>
+                  <AuthenticatorForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/secrets"
+              element={
+                <ProtectedRoute>
+                  <Secrets />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/groups"
+              element={
+                <ProtectedRoute>
+                  <Groups />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/secrets/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <SecretDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/groups/:serviceId"
+              element={
+                <ProtectedRoute>
+                  <GroupDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Box>
+      </Box>
+    </>
+  );
+}
+
+export default App;

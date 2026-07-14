@@ -9,6 +9,19 @@ interface RequestOptions {
   headers?: Record<string, string>
 }
 
+export interface ApiErrorResponse {
+  error: {
+    code: string;
+    message: string;
+    target: string;
+    details: {
+      code: string;
+      target: string;
+      message: string;
+    };
+  };
+}
+
 interface JsonRequestOptions extends RequestOptions {
   body?: unknown
 }
@@ -19,10 +32,23 @@ interface TextRequestOptions extends RequestOptions {
 
 const ACCESS_TOKEN_STORAGE_KEY = 'conjur.accessToken'
 
+export class ApiError extends Error {
+  response: ApiErrorResponse;
+  status: number;
+
+  constructor(response: ApiErrorResponse, status: number) {
+super(response.error?.message ?? response.message ?? "API request failed");
+    this.name = "ApiError";
+    this.response = response;
+    this.status = status;
+  }
+}
 
 function buildUrl(path: string, query?: object) {
   const url = new URL(path, API_BASE_URL || window.location.origin)
+  console.log("path:", path)
 
+  console.log("query:", query)
   if (query) {
     Object.entries(query as Record<string, unknown>).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -37,7 +63,7 @@ function buildUrl(path: string, query?: object) {
 async function request(path: string, options: RequestOptions & { body?: BodyInit }): Promise<Response> {
   const accessToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)?.trim()
 
-  return fetch(buildUrl(path, options.query), {
+  return fetch(buildUrl(`/api${path}`, options.query), {
     method: options.method ?? 'GET',
     headers: {
       ...(accessToken ? { Authorization: `Token token="${accessToken}"` } : {}),
@@ -64,12 +90,16 @@ export async function apiRequestJson<T>(path: string, options: JsonRequestOption
     })
 
     if (response.status === 401) {
-        localStorage.removeItem(TOKEN_STORAGE_KEY)
+        localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+        window.location.href = "/login"
+        return Promise.reject(new Error("Unauthorized"))
     }
 
     if (!response.ok) {
-      const message = await response.text()
-      throw new Error(message || `Request failed: ${response.status}`)
+        const message = await response.text()
+        console.log(message)
+         const apiError = JSON.parse(message) as ApiErrorResponse;
+      throw new ApiError(apiError, response.status);
     }
 
     if (response.status === 204) {
@@ -81,6 +111,7 @@ export async function apiRequestJson<T>(path: string, options: JsonRequestOption
     return (await response.json()) as T
   } catch (error) {
     if (error instanceof Error) {
+             console.error("API request error:", error);
       throw new Error(`API request failed for ${path}: ${error.message}`)
     }
 
@@ -100,8 +131,10 @@ export async function apiRequestText(path: string, options: TextRequestOptions =
     })
 
     if (!response.ok) {
-      const message = await response.text()
-      throw new Error(message || `Request failed: ${response.status}`)
+      console.log("Response not ok:", response.status, response.statusText);
+      const message = await response.json()
+      const apiError = JSON.parse(message) as ApiErrorResponse;
+      throw new ApiError(apiError, response.status);
     }
 
     if (response.status === 204) {
@@ -109,6 +142,38 @@ export async function apiRequestText(path: string, options: TextRequestOptions =
     }
 
     return await response.text()
+  } catch (error) {
+    if (error instanceof Error) {
+
+      throw new Error(`API request failed for ${path}: ${error.message}`)
+    }
+
+    throw new Error(`API request failed for ${path}`)
+  }
+}
+
+export async function apiRequestTextFullResponse(path: string, options: TextRequestOptions = {}): Promise<string> {
+  try {
+    const response = await request(path, {
+      ...options,
+      headers: {
+        ...(options.body !== undefined ? { 'Content-Type': 'text/plain' } : {}),
+        ...options.headers,
+      },
+      body: options.body,
+    })
+
+    if (!response.ok) {
+      const message = await response.text()
+      const apiError = JSON.parse(message) as ApiErrorResponse;
+      throw new ApiError(apiError, response.status);
+    }
+
+    if (response.status === 204) {
+      return ''
+    }
+
+    return await {status: response.status, data: await response.text()}
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`API request failed for ${path}: ${error.message}`)

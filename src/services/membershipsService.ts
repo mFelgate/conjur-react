@@ -76,7 +76,7 @@ export const membershipsService = {
       method: 'POST',
       query: {
         members: 'true',
-        member,
+        member: member
       },
       headers: {
         accept: 'application/json',

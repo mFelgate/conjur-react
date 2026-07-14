@@ -40,6 +40,7 @@ export interface ResourceSecretVersionResponse {
   version: number
 }
 
+
 export interface ResourceResponse {
   annotations: PolicyAnnotationResponse[]
   created_at: string

@@ -54,5 +54,14 @@ export const authenticatorsService = {
         accept: 'application/x.secretsmgr.v2beta+json',
       },
     },)
+	}, create(authenticator) {
+    const account = localStorage.getItem(ACCOUNT)?.trim()
+    const path = `/authenticators/${account}`
+    return apiRequest<AuthenticatorV2Response>(path , {
+			method: 'POST',
+      headers: {
+        accept: 'application/x.secretsmgr.v2beta+json',
+      }, body: authenticator
+    },)
 	},
 }

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -8,172 +8,161 @@ import {
   Container,
   Divider,
   Paper,
+  TextField,
   Stack,
   Typography,
-} from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import DeleteIcon from '@mui/icons-material/Delete'
-import VisibilityIcon from '@mui/icons-material/Visibility'
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
+
+import CloseIcon from "@mui/icons-material/Close";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { DetailRow } from "../resources/resourceDetails.jsx";
+
+import {
+  authenticatorsService,
+  membershipsService,
+  secretsService,
+} from "../../services";
+import MembershipGroups from "../members/memberGroup.jsx";
 
 
-import { authenticatorsService, membershipsService } from '../services'
+function SecretDetailRow({ resource_id, configKey, value }) {
+  const [editing, setEditing] = useState(false);
+  const [editedValue, setEditedValue] = useState("");
+  const [currentValue, setCurrentValue] = useState(value);
 
-function DetailRow({ label, value }) {
-  return (
-    <Stack direction="row" spacing={2} justifyContent="space-between">
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="body2">{value}</Typography>
-    </Stack>
-  )
-}
+  const startEdit = (configKey, currentValue) => {
+    setEditing(true);
+    setEditedValue(currentValue);
+  };
 
+  const cancelEdit = () => {
+    setEditing(false);
+    setEditedValue("");
+  };
 
-function AuthenticatorGroups({type, name, group}) {
-  const [members, setMembers] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const resource_id = `conjur/authn-${type}/${name}/${group}`
+  const saveSecret = async (configKey) => {
+    try {
+      const response = await secretsService.update(
+        "variable",
+        `${resource_id}/${configKey}`,
+        editedValue,
+      );
 
-  	async function handleDeleteMember(member, isMounted) {
-			try {
-				await membershipsService.removeMember("group", resource_id, member)
-        loadMembers(group, true)
-			} catch (error) {
-				setError(error instanceof Error ? error.message : 'Update failed.')
-			}
-		}
-
-
-    async function loadMembers(group, isMounted) {
-      setLoading(true)
-      setError('')
-
-      try {
-        const response = await membershipsService.listMembers("group", resource_id)
-        if (isMounted) {
-        setMembers(response)
-        }
-      } catch (requestError) {
-        if (isMounted) {
-          setError(
-            requestError instanceof Error
-              ? requestError.message
-              : 'Failed to load members.',
-          )
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
+      cancelEdit();
+      setCurrentValue(editedValue);
+    } catch (error) {
+      console.error("Failed to update secret:", error);
+      // Handle error (e.g., show a notification)
     }
-
-    // Effect runs once on first render (equivalent idea to ngOnInit).
-    useEffect(() => {
-    // Prevents state updates if component unmounts before request completes.
-      let isMounted = true
-
-
-      loadMembers(group, isMounted)
-
-      // Cleanup runs on unmount.
-      return () => {
-          isMounted = false
-      }
-    }, [type, name, group])
+  };
 
   return (
-      <>
-    <Typography variant="body1" color="text.secondary">
-        {group.toUpperCase()}
+    <Stack
+      direction="row"
+      spacing={2}
+      alignItems="center"
+      justifyContent="space-between"
+    >
+      <Typography variant="body2" color="text.secondary" sx={{ minWidth: 180 }}>
+        {configKey}
       </Typography>
 
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-      
-       {!loading && !error && members?.length == 0 && (
-          <Alert severity="info">No members found.</Alert>
-      )}
-     {members && members.length > 0 && (
-        <Stack spacing={1.5}>
-          {members.map((member) => (
-            <Stack
-              key={member.member}
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
+      {editing ? (
+        <Stack spacing={1} alignItems="center" sx={{ flex: 1 }}>
+          <TextField
+            fullWidth
+            multiline
+            minRows={12}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            spellCheck={false}
+            sx={{
+              "& textarea": {
+                fontFamily: "monospace",
+                whiteSpace: "pre",
+              },
+            }}
+          />
+
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              startIcon={<CheckIcon />}
+              onClick={() => saveSecret(configKey)}
             >
-              <Typography   
-               variant="body2"
-               sx={{ display: 'flex', alignItems: 'center' }}
-               >
-                {member.member}
-              </Typography>
-              <Tooltip title="Remove member">
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => handleDeleteMember(member.member)}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+              Save
+            </Button>
 
-          ))}
-
+            <Button startIcon={<CloseIcon />} onClick={cancelEdit}>
+              Cancel
+            </Button>
+          </Stack>
         </Stack>
+      ) : (
+        <>
+          <Typography sx={{ flex: 1 }}>{String(currentValue)}</Typography>
 
+          <Button
+            startIcon={<EditIcon />}
+            onClick={() => startEdit(configKey, currentValue)}
+          >
+            Edit
+          </Button>
+        </>
       )}
-    </>
-  )
+    </Stack>
+  );
 }
 
 export default function AuthenticatorDetails() {
-  const { type, name } = useParams()
-  const [authenticator, setAuthenticator] = useState(null)
-  const [appsMembers, setAppsMembers] = useState(null)
-  const [operatorMembers, setOperatorMembers] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { type, name } = useParams();
+  const [authenticator, setAuthenticator] = useState(null);
+  const [appsMembers, setAppsMembers] = useState(null);
+  const [operatorMembers, setOperatorMembers] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const resource_id = `conjur/authn-${type}/${name}`;
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     async function loadAuthenticator() {
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
 
       try {
-        const response = await authenticatorsService.get(type, name)
+        const response = await authenticatorsService.get(type, name);
 
         if (isMounted) {
-          setAuthenticator(response)
+          setAuthenticator(response);
         }
       } catch (requestError) {
         if (isMounted) {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : 'Failed to load authenticator.',
-          )
+              : "Failed to load authenticator.",
+          );
         }
       } finally {
         if (isMounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
 
-    loadAuthenticator()
+    loadAuthenticator();
 
     return () => {
-      isMounted = false
-    }
-  }, [type, name])
+      isMounted = false;
+    };
+  }, [type, name]);
 
   return (
     <Box sx={{ py: 4 }}>
@@ -183,7 +172,7 @@ export default function AuthenticatorDetails() {
             component={Link}
             to="/authenticators"
             startIcon={<ArrowBackIcon />}
-            sx={{ alignSelf: 'flex-start' }}
+            sx={{ alignSelf: "flex-start" }}
           >
             Authenticators
           </Button>
@@ -195,7 +184,7 @@ export default function AuthenticatorDetails() {
             </Stack>
           )}
 
-          {!loading && error && <Alert severity="error">{error}</Alert>}
+          {!loading && error && <Alert severity="error">{error.message}</Alert>}
 
           {!loading && !error && authenticator && (
             <>
@@ -203,18 +192,23 @@ export default function AuthenticatorDetails() {
                 <Typography variant="h4" component="h1">
                   {authenticator.name}
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {authenticator.type}
-                </Typography>
               </Stack>
 
               <Paper variant="outlined" sx={{ p: 2 }}>
                 <Stack spacing={1.5}>
-                  <DetailRow label="Name" value={authenticator.name} />
                   <DetailRow label="Type" value={authenticator.type} />
-                  <DetailRow label="Enabled" value={authenticator.enabled ? 'Yes' : 'No'} />
-                  <DetailRow label="Branch" value={authenticator.branch ?? ''} />
-                  <DetailRow label="Owner" value={authenticator.owner?.id ?? ''} />
+                  <DetailRow
+                    label="Enabled"
+                    value={authenticator.enabled ? "Yes" : "No"}
+                  />
+                  <DetailRow
+                    label="Branch"
+                    value={authenticator.branch ?? ""}
+                  />
+                  <DetailRow
+                    label="Owner"
+                    value={authenticator.owner?.id ?? ""}
+                  />
                 </Stack>
               </Paper>
 
@@ -224,13 +218,17 @@ export default function AuthenticatorDetails() {
                     Config
                   </Typography>
 
-                  {authenticator.data && Object.entries(authenticator.data).length > 0 ? (
+                  {authenticator.data &&
+                  Object.entries(authenticator.data).length > 0 ? (
                     Object.entries(authenticator.data).map(([key, value]) => (
-                      <DetailRow
-                        key={key}
-                        label={key}
+                      <SecretDetailRow
+                        key={key.replaceAll("_", "-")}
+                        configKey={key.replaceAll("_", "-")}
+                        resource_id={resource_id}
                         value={
-                          typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+                          typeof value === "string" ||
+                          typeof value === "number" ||
+                          typeof value === "boolean"
                             ? String(value)
                             : JSON.stringify(value)
                         }
@@ -243,20 +241,29 @@ export default function AuthenticatorDetails() {
                   )}
                 </Stack>
               </Paper>
-                      
 
               <Paper variant="outlined" sx={{ p: 2 }}>
                 <Stack spacing={2}>
                   <Typography variant="h6" component="h2">
                     Members
                   </Typography>
-                    <AuthenticatorGroups type={type} name={name} group="apps" />
-                    <AuthenticatorGroups type={type} name={name} group="operators" />
+                  <Typography variant="body1" color="text.secondary">
+                    Apps
+                  </Typography>
+
+                  <MembershipGroups serviceId={`${resource_id}/apps`} />
+                                    <Typography variant="body1" color="text.secondary">
+                    Operators
+                  </Typography>
+
+
+                  <MembershipGroups serviceId={`${resource_id}/operators`} />
                 </Stack>
               </Paper>
-            </>)}
+            </>
+          )}
         </Stack>
       </Container>
     </Box>
-  )
+  );
 }

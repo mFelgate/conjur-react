@@ -1,6 +1,6 @@
 // React hooks for local component state and lifecycle side effects.
-import { useEffect, useMemo, useState } from 'react'
-
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 // MUI UI primitives used to build the page.
 import {
   Alert,
@@ -10,80 +10,100 @@ import {
   Stack,
   TextField,
   Typography,
-} from '@mui/material'
+} from "@mui/material";
 
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+
 // Service-layer import (Angular-style service pattern).
 // The page calls this service; it does not call fetch() directly.
-import { resourcesService } from '../services'
+import { resourcesService } from "../../services";
 
-function ResourceItem({resource}) {
-  console.log(resource)
-  const parts = String(resource.id ?? '').split(':')
+function ResourceItem({ resource }) {
+  console.log(resource);
+   const navigate = useNavigate();
+  const parts = String(resource.id ?? "").split(":");
   return (
     <TableRow
-        key={resource.id}
-        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+      key={resource.id}
+      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
     >
-        <TableCell component="th" scope="row">
-        {parts[2] }
-        </TableCell>
-        <TableCell align="right">{parts[0]}</TableCell>
-        <TableCell align="right">{parts[1]}</TableCell>
-        <TableCell align="right">{resource.owner}</TableCell>
-        <TableCell align="right">{resource.policy}</TableCell>
+      <TableCell component="th" scope="row">
+        {parts[2]}
+      </TableCell>
+      <TableCell align="right">{parts[0]}</TableCell>
+      <TableCell align="right">{parts[1]}</TableCell>
+      <TableCell align="right">{resource.owner}</TableCell>
+      <TableCell align="right">{resource.policy}</TableCell>
+      <TableCell align="right">
+        <Tooltip title="View resource">
+          <IconButton
+            aria-label={`View ${resource.id}`}
+            size="small"
+            onClick={() =>
+              navigate(
+                `/resources/${encodeURIComponent(parts[1])}/${encodeURIComponent(parts[2])}`,
+              )
+            }
+          >
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
     </TableRow>
   );
 }
 
 export default function Resources() {
   // Stores fetched resources from the API.
-  const [resources, setResources] = useState([])
+  const [resources, setResources] = useState([]);
 
   // Tracks loading state so we can show spinner/feedback.
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   // Stores friendly error text when a request fails.
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
 
   // Controlled input value for search text.
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("");
 
   // Memoized filtered list (runs only when resources/search changes).
   // This is client-side filtering for learning/demo purposes.
   const filteredResources = useMemo(() => {
     // Normalize search value for case-insensitive compare.
-    const query = search.trim().toLowerCase()
+    const query = search.trim().toLowerCase();
 
     // If query is empty, show all data.
     if (!query) {
-      return resources
+      return resources;
     }
 
     // Filter by id/kind text.
     return resources.filter((resource) => {
-      const id = String(resource.id ?? '').toLowerCase()
-      const kind = String(resource.kind ?? '').toLowerCase()
-      return id.includes(query) || kind.includes(query)
-    })
-  }, [resources, search])
+      const id = String(resource.id ?? "").toLowerCase();
+      const kind = String(resource.kind ?? "").toLowerCase();
+      return id.includes(query) || kind.includes(query);
+    });
+  }, [resources, search]);
 
   // Effect runs once on first render (equivalent idea to ngOnInit).
   useEffect(() => {
     // Prevents state updates if component unmounts before request completes.
-    let isMounted = true
+    let isMounted = true;
 
     // Async function for data loading.
     async function loadResources() {
       // Request started: set loading true and clear previous error.
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
 
       try {
         // Service call returns a Promise.
@@ -91,11 +111,11 @@ export default function Resources() {
         // - Resource[]
         // - { items: Resource[] }
         // - { resources: Resource[] }
-        const response = await resourcesService.list()
+        const response = await resourcesService.list();
 
         // Only update state if component still exists.
         if (isMounted) {
-          setResources(response)
+          setResources(response);
         }
       } catch (requestError) {
         // Normalize unknown error into a readable string.
@@ -103,31 +123,31 @@ export default function Resources() {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : 'Failed to load resources.',
-          )
+              : "Failed to load resources.",
+          );
         }
       } finally {
         // Always clear loading after request finishes.
         if (isMounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
 
     // Execute the async loader.
-    loadResources()
+    loadResources();
 
     // Cleanup runs on unmount.
     return () => {
-      isMounted = false
-    }
-  }, [])
+      isMounted = false;
+    };
+  }, []);
 
   return (
     // Outer page spacing wrapper.
-    <Box sx={{ py: 4 }}>
+   <Box sx={{ width: "100%" }}>
       {/* Content width container */}
-      <Container>
+      <Container >
         {/* Page title */}
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Resources
@@ -166,34 +186,41 @@ export default function Resources() {
           )}
 
           {/* Empty filter state (data exists, but search excludes all) */}
-          {!loading && !error && resources.length > 0 && filteredResources.length === 0 && (
-            <Alert severity="info">No resources match your search.</Alert>
-          )}
+          {!loading &&
+            !error &&
+            resources.length > 0 &&
+            filteredResources.length === 0 && (
+              <Alert severity="info">No resources match your search.</Alert>
+            )}
 
           {/* Data list */}
           {!loading && !error && filteredResources.length > 0 && (
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                    <TableHead>
-                    <TableRow>
-                        <TableCell>Resource</TableCell>
-                        <TableCell align="right">Account</TableCell>
-                        <TableCell align="right">Kind</TableCell>
-                        <TableCell align="right">Owner</TableCell>
-                        <TableCell align="right">Policy</TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody>
-                    {filteredResources.map((resource) => (
-                        <ResourceItem resource={resource}/>
-                    ))}
-                    </TableBody>
-                </Table>
-                </TableContainer>
+              <Table
+                sx={{ minWidth: 650 }}
+                size="small"
+                aria-label="a dense table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Resource</TableCell>
+                    <TableCell align="right">Account</TableCell>
+                    <TableCell align="right">Kind</TableCell>
+                    <TableCell align="right">Owner</TableCell>
+                    <TableCell align="right">Policy</TableCell>
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredResources.map((resource) => (
+                    <ResourceItem resource={resource} />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </Stack>
       </Container>
     </Box>
-  )
+  );
 }
-
