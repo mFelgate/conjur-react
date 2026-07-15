@@ -16,7 +16,7 @@ function toBase64(value: string): string {
 }
 
 function normalizeConjurToken(rawToken: string): string {
-  const token = rawToken.trim()
+  const token = rawToken?.trim()
 
   // Conjur authenticate commonly returns a JSON token object as text.
   // API requests expect that token to be Base64-encoded in the Authorization header.

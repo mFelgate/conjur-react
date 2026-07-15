@@ -8,7 +8,7 @@ export const resourcesService = {
       query: params,
     })
   }, get (kind, identifier) {
-    const path = `/resources/${ACCOUNT.trim()}/${encodeURIComponent(kind)}/${encodeURIComponent(identifier)}`
+    const path = `/resources/${ACCOUNT?.trim()}/${encodeURIComponent(kind)}/${encodeURIComponent(identifier)}`
     return apiRequest<ResourcesResponse>(path, {
       headers: {
         accept: 'application/json',

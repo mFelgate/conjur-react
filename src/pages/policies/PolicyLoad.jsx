@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Alert,
   Box,
@@ -72,6 +72,53 @@ export default function PolicyLoad() {
   const [error, setError] = useState("");
   const [method, setMethod] = useState("POST");
 
+  //  User for the editor instance and monaco instance
+  const editorRef = useRef(null);
+  const monacoRef = useRef(null);
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+  };
+
+  const clearErrors = () => {
+    const monaco = monacoRef.current;
+    const editor = editorRef.current;
+
+    if (!monaco || !editor) return;
+
+    const model = editor.getModel();
+    if (!model) return;
+
+    monaco.editor.setModelMarkers(model, "dry-run", []);
+  };
+
+    const handleUpdate = (value) => {
+    clearErrors
+    setPolicyText(value ?? "");
+  };
+
+  const showErrors = (errors) => {
+    const monaco = monacoRef.current;
+    const editor = editorRef.current;
+
+    if (!monaco || !editor) return;
+
+    const model = editor.getModel();
+    if (!model) return;
+    console.log("Dry run errors:", errors.response?.errors);
+
+    const markers = errors.response?.errors.map((error) => ({
+      startLineNumber: error.line,
+      startColumn: error.column,
+      endLineNumber: error.line,
+      endColumn: error.column + 1,
+      message: error.message,
+      severity: monaco.MarkerSeverity.Error,
+    }));
+
+    monaco.editor.setModelMarkers(model, "dry-run", markers);
+  };
+
   const getChanges = (before, after, path = "") => {
     const changes = [];
 
@@ -86,7 +133,7 @@ export default function PolicyLoad() {
       const beforeValue = before?.[key];
       const afterValue = after?.[key];
 
-       if (JSON.stringify(beforeValue) !== JSON.stringify(afterValue)) {
+      if (JSON.stringify(beforeValue) !== JSON.stringify(afterValue)) {
         changes.push({
           path: currentPath,
           before: beforeValue,
@@ -99,6 +146,7 @@ export default function PolicyLoad() {
   };
 
   const handleSubmit = async () => {
+    clearErrors();
     setLoading(true);
     setError("");
 
@@ -114,7 +162,10 @@ export default function PolicyLoad() {
       setResponseStatus(response.status);
       console.log(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load policy.");
+      if (dryRun) {
+        showErrors(err);
+      }
+       setError(err instanceof Error ? err.message : "Failed to load policy.");
     } finally {
       setLoading(false);
     }
@@ -171,6 +222,7 @@ export default function PolicyLoad() {
                 height="600px"
                 defaultLanguage="yaml"
                 value={policyText}
+                onMount={handleEditorDidMount}
                 onChange={(value) => setPolicyText(value ?? "")}
               />
               {error && <Alert severity="error">{error}</Alert>}
@@ -248,16 +300,19 @@ export default function PolicyLoad() {
                         const changes = getChanges(beforeItem, afterItem, "");
                         const resourceId = beforeItem.id;
                         return (
-                          <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
+                          <Paper
+                            key={resourceId}
+                            variant="outlined"
+                            sx={{ p: 2 }}
+                          >
                             <Typography variant="h6" color="text.secondary">
-                             {resourceId}
+                              {resourceId}
                             </Typography>
                             {changes.map((change) => (
                               <Box key={change.path}>
                                 <Typography
                                   sx={{
                                     color: "error.main",
-                                   
                                   }}
                                 >
                                   - {change.path}:{" "}
@@ -267,7 +322,6 @@ export default function PolicyLoad() {
                                 <Typography
                                   sx={{
                                     color: "success.main",
-                                  
                                   }}
                                 >
                                   + {change.path}:{" "}
