@@ -72,6 +72,32 @@ export default function PolicyLoad() {
   const [error, setError] = useState("");
   const [method, setMethod] = useState("POST");
 
+  const getChanges = (before, after, path = "") => {
+    const changes = [];
+
+    const keys = new Set([
+      ...Object.keys(before || {}),
+      ...Object.keys(after || {}),
+    ]);
+
+    keys.forEach((key) => {
+      const currentPath = path ? `${path}.${key}` : key;
+
+      const beforeValue = before?.[key];
+      const afterValue = after?.[key];
+
+       if (JSON.stringify(beforeValue) !== JSON.stringify(afterValue)) {
+        changes.push({
+          path: currentPath,
+          before: beforeValue,
+          after: afterValue,
+        });
+      }
+    });
+
+    return changes;
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
@@ -202,6 +228,57 @@ export default function PolicyLoad() {
                         />
                       </Paper>
                     ))}
+                  </Stack>
+                )}
+
+                <Typography variant="h6" sx={{ mt: 1 }}>
+                  Updates
+                </Typography>
+                {console.log(policyResponse.updated)}
+
+                {!policyResponse.updated?.after?.items ||
+                policyResponse.updated.after.items.length == 0 ? (
+                  <Alert severity="info">No resources updated.</Alert>
+                ) : (
+                  <Stack spacing={1}>
+                    {policyResponse.updated.before.items.map(
+                      (beforeItem, index) => {
+                        const afterItem =
+                          policyResponse.updated.after.items[index];
+                        const changes = getChanges(beforeItem, afterItem, "");
+                        const resourceId = beforeItem.id;
+                        return (
+                          <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
+                            <Typography variant="h6" color="text.secondary">
+                             {resourceId}
+                            </Typography>
+                            {changes.map((change) => (
+                              <Box key={change.path}>
+                                <Typography
+                                  sx={{
+                                    color: "error.main",
+                                   
+                                  }}
+                                >
+                                  - {change.path}:{" "}
+                                  {JSON.stringify(change.before)}
+                                </Typography>
+
+                                <Typography
+                                  sx={{
+                                    color: "success.main",
+                                  
+                                  }}
+                                >
+                                  + {change.path}:{" "}
+                                  {JSON.stringify(change.after)}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Paper>
+                        );
+                      },
+                    )}
                   </Stack>
                 )}
               </Stack>
