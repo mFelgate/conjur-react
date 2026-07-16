@@ -17,6 +17,15 @@ import {
   ListItemButton,
   ListItemText,
 } from "@mui/material";
+
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { AuthProvider } from "./auth/AuthContext";
 import { useAuth } from "./auth/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -35,7 +44,7 @@ import GroupDetails from "./pages/members/GroupDetails.jsx";
 import SecretDetails from "./pages/secrets/SecretDetails.jsx";
 import "./App.css";
 
-const drawerWidth = 180;
+const drawerWidth = 200;
 
 function App() {
   return (
@@ -73,34 +82,40 @@ function NavBar() {
           <Toolbar>
             <Typography variant="h6">CONJUR</Typography>
           </Toolbar>
-
           <List>
             <ListItemButton component={Link} to="/resources">
+              <Inventory2OutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Resources" />
             </ListItemButton>
 
             <ListItemButton component={Link} to="/secrets">
+              <KeyOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Secrets" />
             </ListItemButton>
 
             <ListItemButton component={Link} to="/groups">
+              <GroupOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Groups" />
             </ListItemButton>
 
             <ListItemButton component={Link} to="/authenticators">
+              <SecurityOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Authenticators" />
             </ListItemButton>
 
             <ListItemButton component={Link} to="/policy">
+              <DescriptionOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Policy" />
             </ListItemButton>
 
             {isAuthenticated ? (
               <ListItemButton onClick={logout}>
+                <LogoutOutlinedIcon sx={{ mr: 2 }} />
                 <ListItemText primary="Logout" />
               </ListItemButton>
             ) : (
               <ListItemButton onClick={login}>
+                <LoginOutlinedIcon sx={{ mr: 2 }} />
                 <ListItemText primary="Login" />
               </ListItemButton>
             )}

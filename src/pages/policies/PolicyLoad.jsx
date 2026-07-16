@@ -25,23 +25,24 @@ import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 export function PolicyResourceInfo({ title, resource }) {
   return (
     <Stack spacing={1.5}>
+      <Typography variant="h6" color="text.secondary">
+        {resource.identifier}
+      </Typography>
       <DetailRow label="Name" value={resource.id} />
       <DetailRow label="Type" value={resource.type} />
-      <DetailRow label="Identifier" value={resource.identifier} />
       <DetailRow label="Owner" value={resource.owner} />
       <DetailRow label="Policy" value={resource.policy} />
 
       {resource.members?.length > 0 && (
         <>
-          <Typography variant="subtitle2" color="text.secondary">
-            Members
-          </Typography>
+          <DetailRow label="Members" value={JSON.stringify(resource.members)} />
+
           <Stack spacing={0.5}>
-            {resource.members.map((member) => (
+            {/* {resource.members.map((member) => (
               <Typography key={member} variant="body2">
                 {member}
               </Typography>
-            ))}
+            ))} */}
           </Stack>
         </>
       )}
@@ -62,12 +63,57 @@ export function PolicyResourceInfo({ title, resource }) {
   );
 }
 
+export function PolicyUpdates({ UpdatedResources, getChanges }) {
+  const beforeItems = UpdatedResources?.updated?.before?.items ?? [];
+  const afterItems = UpdatedResources?.updated?.after?.items ?? [];
+
+  if (beforeItems.length === 0) {
+    return <Alert severity="info">No resources will be updated.</Alert>;
+  }
+
+  return (
+    <Stack spacing={1}>
+      {beforeItems.map((beforeItem, index) => {
+        const afterItem = afterItems[index];
+        const changes = getChanges(beforeItem, afterItem, "");
+        const resourceId = beforeItem.identifier;
+
+        return (
+          <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="h6" color="text.secondary">
+              {resourceId}
+            </Typography>
+
+            {changes.map((change) => (
+              <Box key={change.path}>
+                <Typography
+                  sx={{ color: "error.main", overflowWrap: "anywhere" }}
+                >
+                  - {change.path}: {JSON.stringify(change.before)}
+                </Typography>
+                <Typography
+                  sx={{ color: "success.main", overflowWrap: "anywhere" }}
+                >
+                  + {change.path}: {JSON.stringify(change.after)}
+                </Typography>
+              </Box>
+            ))}
+          </Paper>
+        );
+      })}
+    </Stack>
+  );
+}
+
 export default function PolicyLoad() {
   const [policyText, setPolicyText] = useState("");
   const [dryRun, setDryRun] = useState(true);
   const [loading, setLoading] = useState(false);
   const [policyResponse, setPolicyResponse] = useState(null);
   const [responseStatus, setResponseStatus] = useState(null);
+  const [createdItems, setCreatedItems] = useState([]);
+  const [deletedItems, setDeletedItems] = useState([]);
+  const [updatedItems, setUpdatedItems] = useState([]);
   const [branch, setBranch] = useState("root");
   const [error, setError] = useState("");
   const [method, setMethod] = useState("POST");
@@ -92,8 +138,8 @@ export default function PolicyLoad() {
     monaco.editor.setModelMarkers(model, "dry-run", []);
   };
 
-    const handleUpdate = (value) => {
-    clearErrors
+  const handleUpdate = (value) => {
+    clearErrors;
     setPolicyText(value ?? "");
   };
 
@@ -161,11 +207,17 @@ export default function PolicyLoad() {
       setPolicyResponse(response.data);
       setResponseStatus(response.status);
       console.log(response);
+
+      if (dryRun) {
+        setCreatedItems(response.data.created?.items ?? []);
+        setDeletedItems(response.data.deleted?.items ?? []);
+        setUpdatedItems(response.data.updated?.items ?? []);
+      }
     } catch (err) {
       if (dryRun) {
         showErrors(err);
       }
-       setError(err instanceof Error ? err.message : "Failed to load policy.");
+      setError(err instanceof Error ? err.message : "Failed to load policy.");
     } finally {
       setLoading(false);
     }
@@ -242,15 +294,14 @@ export default function PolicyLoad() {
             <>
               <Stack spacing={2}>
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  Created Resources
+                  Resource to Be Created
                 </Typography>
 
-                {!policyResponse.created?.items ||
-                policyResponse.created.items.length === 0 ? (
-                  <Alert severity="info">No resources created.</Alert>
+                {!createdItems || createdItems.length === 0 ? (
+                  <Alert severity="info">No resources will be created.</Alert>
                 ) : (
                   <Stack spacing={1}>
-                    {policyResponse.created.items.map((resource) => (
+                    {createdItems.map((resource) => (
                       <Paper key={resource.id} variant="outlined" sx={{ p: 2 }}>
                         <PolicyResourceInfo
                           key={resource.id}
@@ -263,15 +314,14 @@ export default function PolicyLoad() {
                 )}
 
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  Deleted Resources
+                  Resource to Be Deleted
                 </Typography>
 
-                {!policyResponse.deleted?.items ||
-                policyResponse.deleted.items.length === 0 ? (
-                  <Alert severity="info">No resources deleted.</Alert>
+                {!deletedItems || deletedItems.length === 0 ? (
+                  <Alert severity="info">No resources will be deleted.</Alert>
                 ) : (
                   <Stack spacing={1}>
-                    {policyResponse.deleted.items.map((resource) => (
+                    {deletedItems.map((resource) => (
                       <Paper key={resource.id} variant="outlined" sx={{ p: 2 }}>
                         <PolicyResourceInfo
                           key={resource.id}
@@ -284,57 +334,12 @@ export default function PolicyLoad() {
                 )}
 
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  Updates
+                  Resource To Be Updated
                 </Typography>
-                {console.log(policyResponse.updated)}
-
-                {!policyResponse.updated?.after?.items ||
-                policyResponse.updated.after.items.length == 0 ? (
-                  <Alert severity="info">No resources updated.</Alert>
-                ) : (
-                  <Stack spacing={1}>
-                    {policyResponse.updated.before.items.map(
-                      (beforeItem, index) => {
-                        const afterItem =
-                          policyResponse.updated.after.items[index];
-                        const changes = getChanges(beforeItem, afterItem, "");
-                        const resourceId = beforeItem.id;
-                        return (
-                          <Paper
-                            key={resourceId}
-                            variant="outlined"
-                            sx={{ p: 2 }}
-                          >
-                            <Typography variant="h6" color="text.secondary">
-                              {resourceId}
-                            </Typography>
-                            {changes.map((change) => (
-                              <Box key={change.path}>
-                                <Typography
-                                  sx={{
-                                    color: "error.main",
-                                  }}
-                                >
-                                  - {change.path}:{" "}
-                                  {JSON.stringify(change.before)}
-                                </Typography>
-
-                                <Typography
-                                  sx={{
-                                    color: "success.main",
-                                  }}
-                                >
-                                  + {change.path}:{" "}
-                                  {JSON.stringify(change.after)}
-                                </Typography>
-                              </Box>
-                            ))}
-                          </Paper>
-                        );
-                      },
-                    )}
-                  </Stack>
-                )}
+                <PolicyUpdates
+                  UpdatedResources={policyResponse}
+                  getChanges={getChanges}
+                />
               </Stack>
             </>
           )}

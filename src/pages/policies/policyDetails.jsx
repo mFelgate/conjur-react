@@ -160,7 +160,7 @@ export default function PolicyDetails() {
                   <Alert severity="info">
                     The returned YAML statements may not be identical to the
                     YAML statements used to create a policy. Additionally, the
-                    API has some known limitations (see{" "}
+                    API has some known limitations (You can refer to the official doc's here{" "}
                     <a
                       href="https://docs.cyberark.com/secrets-manager-sh/latest/en/content/developer/conjur_api_effective_policy.htm?tocpath=Developer%7CSecrets%20Manager%20REST%20APIs%7CREST%C2%A0APIs%7C_____13"
                       target="_blank"
@@ -168,7 +168,9 @@ export default function PolicyDetails() {
                     >
                       here
                     </a>
-                    ).
+                    ). 
+
+                    Please save all policy statements used to create a policy in a secure location, as they may be needed for future reference.
                   </Alert>
                   <Typography
                     component="pre"
