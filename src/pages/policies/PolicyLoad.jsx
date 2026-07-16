@@ -21,89 +21,8 @@ import Editor from "@monaco-editor/react";
 import { configureMonacoYaml } from "monaco-yaml";
 import { policyService } from "../../services/policyService";
 import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
-
-export function PolicyResourceInfo({ title, resource }) {
-  return (
-    <Stack spacing={1.5}>
-      <Typography variant="h6" color="text.secondary">
-        {resource.identifier}
-      </Typography>
-      <DetailRow label="Name" value={resource.id} />
-      <DetailRow label="Type" value={resource.type} />
-      <DetailRow label="Owner" value={resource.owner} />
-      <DetailRow label="Policy" value={resource.policy} />
-
-      {resource.members?.length > 0 && (
-        <>
-          <DetailRow label="Members" value={JSON.stringify(resource.members)} />
-
-          <Stack spacing={0.5}>
-            {/* {resource.members.map((member) => (
-              <Typography key={member} variant="body2">
-                {member}
-              </Typography>
-            ))} */}
-          </Stack>
-        </>
-      )}
-
-      {resource.memberships?.length > 0 && (
-        <>
-          <Typography variant="subtitle2" color="text.secondary">
-            Memberships
-          </Typography>
-          {resource.memberships.map((membership) => (
-            <Typography key={membership} variant="body2">
-              {membership}
-            </Typography>
-          ))}
-        </>
-      )}
-    </Stack>
-  );
-}
-
-export function PolicyUpdates({ UpdatedResources, getChanges }) {
-  const beforeItems = UpdatedResources?.updated?.before?.items ?? [];
-  const afterItems = UpdatedResources?.updated?.after?.items ?? [];
-
-  if (beforeItems.length === 0) {
-    return <Alert severity="info">No resources will be updated.</Alert>;
-  }
-
-  return (
-    <Stack spacing={1}>
-      {beforeItems.map((beforeItem, index) => {
-        const afterItem = afterItems[index];
-        const changes = getChanges(beforeItem, afterItem, "");
-        const resourceId = beforeItem.identifier;
-
-        return (
-          <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="h6" color="text.secondary">
-              {resourceId}
-            </Typography>
-
-            {changes.map((change) => (
-              <Box key={change.path}>
-                <Typography
-                  sx={{ color: "error.main", overflowWrap: "anywhere" }}
-                >
-                  - {change.path}: {JSON.stringify(change.before)}
-                </Typography>
-                <Typography
-                  sx={{ color: "success.main", overflowWrap: "anywhere" }}
-                >
-                  + {change.path}: {JSON.stringify(change.after)}
-                </Typography>
-              </Box>
-            ))}
-          </Paper>
-        );
-      })}
-    </Stack>
-  );
-}
+import PolicyResourceInfo from "./policyinfo.jsx";
+import PolicyUpdates from "./policyUpdates.jsx";
 
 export default function PolicyLoad() {
   const [policyText, setPolicyText] = useState("");
@@ -117,6 +36,7 @@ export default function PolicyLoad() {
   const [branch, setBranch] = useState("root");
   const [error, setError] = useState("");
   const [method, setMethod] = useState("POST");
+  const decorationsRef = useRef([]);
 
   //  User for the editor instance and monaco instance
   const editorRef = useRef(null);
@@ -136,6 +56,10 @@ export default function PolicyLoad() {
     if (!model) return;
 
     monaco.editor.setModelMarkers(model, "dry-run", []);
+    decorationsRef.current = editor.deltaDecorations(
+      decorationsRef.current,
+      [],
+    );
   };
 
   const handleUpdate = (value) => {
@@ -152,6 +76,19 @@ export default function PolicyLoad() {
     const model = editor.getModel();
     if (!model) return;
     console.log("Dry run errors:", errors.response?.errors);
+
+    const errorDecorations = errors.response?.errors.map((error) => ({
+      range: new monaco.Range(error.line, 1, error.line, 1),
+      options: {
+        isWholeLine: true,
+        className: "errorLine",
+      },
+    }));
+
+    decorationsRef.current = editor.deltaDecorations(
+      decorationsRef.current,
+      errorDecorations,
+    );
 
     const markers = errors.response?.errors.map((error) => ({
       startLineNumber: error.line,

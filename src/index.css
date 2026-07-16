@@ -47,7 +47,11 @@ html, body, #root {
   display: flex;
   flex-direction: column;
 }
+.errorLine {
 
+  background: rgba(255, 0, 0, 0.15);
+
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
