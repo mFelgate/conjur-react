@@ -44,8 +44,6 @@ import GroupDetails from "./pages/members/GroupDetails.jsx";
 import SecretDetails from "./pages/secrets/SecretDetails.jsx";
 import "./App.css";
 
-const drawerWidth = 200;
-
 function App() {
   return (
     <AuthProvider>
@@ -71,17 +69,18 @@ function NavBar() {
         <Drawer
           variant="permanent"
           sx={{
-            width: drawerWidth,
             flexShrink: 0,
             "& .MuiDrawer-paper": {
-              width: drawerWidth,
               boxSizing: "border-box",
             },
           }}
         >
-          <Toolbar>
-            <Typography variant="h6">CONJUR</Typography>
-          </Toolbar>
+                    <img
+    src="/conjur-logo.svg"
+    alt="Conjur"
+    style={{ width: "182px", height: "auto", margin: "20px", filter: "brightness(0) saturate(100%)", }}
+
+  />
           <List>
             <ListItemButton component={Link} to="/resources">
               <Inventory2OutlinedIcon sx={{ mr: 2 }} />
@@ -142,6 +141,7 @@ function AppShell() {
             p: 3,
           }}
         >
+
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/resources" replace />} />
