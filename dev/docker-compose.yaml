@@ -1,0 +1,20 @@
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile.dev
+    container_name: react-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    environment:
+      - VITE_CONJUR_URL=http://conjur:3000
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - conjur-dev_default
+
+networks:
+  conjur-dev_default:
+    external: true

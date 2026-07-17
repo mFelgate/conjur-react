@@ -1,16 +1,86 @@
-# React + Vite
+# Conjur React UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight web interface for exploring and managing a local Conjur OSS environment.
 
-Currently, two official plugins are available:
+This project provides a modern React-based UI for Conjur OSS, focused on making it easier to explore Conjur concepts such as resources, secrets, authenticators, groups, and policies without needing to interact directly with the API.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The goal is to provide a simple developer-friendly interface for learning, testing, and working with Conjur OSS.
 
-## React Compiler
+## Features for V1
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Authentication
+- ✅ Password authentication
+- ⬜ OIDC authentication
 
-## Expanding the ESLint configuration
+### Resources
+- ✅ View resources
+- ✅ View resource details
+- ✅ View resource annotations
+- ✅ View resource permissions
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Secrets
+- ✅ Browse secrets
+- ✅ View secret details
+- ✅ Add/Update Secret 
+- ⬜ Secret history
+
+### Groups
+- ✅ Browse groups
+- ✅ View group details
+- ✅ Add/Remove members from group
+
+### Authenticators
+- ✅ Browse authenticators
+- ✅ View authenticator details
+- ✅ Enable Authenticators
+- ✅ Create Authenticators with V2 API
+- ⬜ Authenticator validation/testing
+
+### Policy Management
+- ✅ YAML policy editor
+- ✅ YAML policy validations through editor
+- ✅ View Effective policy
+- ✅ View policy history
+- ✅ Load policies
+- ✅ Policy dry-run validation
+- ✅ View created, deleted, and updated resources during dry-run
+
+
+## Development Environment
+
+This project is designed to run alongside the Conjur OSS development environment.
+
+The Conjur backend should be started using the Conjur development instructions:
+
+https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md
+
+Start the Conjur development environment:
+
+```bash
+cd conjur/dev
+./start.sh
+```
+
+## Screenshots
+
+### Groups
+![Groups](screenshots/Groups.png)
+
+### Group Membership Management
+![Add or Remove Membership](screenshots/AddOrRemoveMembership.png)
+
+### Policy Management
+![View Policies](screenshots/ViewPolcies.png)
+
+![Effective Policy](screenshots/EffectivePolicy.png)
+
+### Policy Validation and Dry Run
+![In Editor Validation](screenshots/InEditorValidation.png)
+![Policy Dry Run Updates](screenshots/PolicyDryRunUpdates.png)
+
+### Secret Management
+![View Secret](screenshots/ViewSecret.png)
+![View Secret](screenshots/ViewOrEditSecret.png)
+
+### Authenticator Management
+![View or Update Authenticator](screenshots/ViewOrUpdateAuthenticator.png)
