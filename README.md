@@ -63,24 +63,95 @@ cd conjur/dev
 
 ## Screenshots
 
-### Groups
-![Groups](screenshots/Groups.png)
+### Resources
 
-### Group Membership Management
-![Add or Remove Membership](screenshots/AddOrRemoveMembership.png)
+#### Resources List
+Browse all Conjur resources with filtering and quick access to resource details.
+
+![Resources List](./screenshots/resourcesView.png)
+
+#### Resource Details
+View resource metadata, annotations, permissions, and ownership.
+
+![Resource Details](./screenshots/resourceView.png)
+
+---
+
+### Secrets
+
+#### Secrets List
+Browse all Conjur secrets available in the selected account.
+
+![Secrets List](./screenshots/SecretsView.png)
+
+#### Secret Details
+Inspect an individual secret and view its metadata.
+
+![Secret Details](./screenshots/SecretView.png)
+
+#### Edit Secret
+Update an existing secret directly from the UI.
+
+![Edit Secret](./screenshots/SecretViewEdit.png)
+
+---
+
+### Groups
+
+#### Groups List
+Browse all groups defined within Conjur.
+
+![Groups List](./screenshots/GroupsView.png)
+
+#### Group Details
+View group information and current membership.
+
+![Group Details](./screenshots/GroupView.png)
+
+#### Edit Membership
+Add or remove members from a group.
+
+![Edit Membership](./screenshots/GroupViewEddit.png)
+
+---
+
+### Authenticators
+
+#### Authenticators List
+Browse all configured authenticators.
+
+![Authenticators List](./screenshots/AuthenticatorsView.png)
+
+#### Authenticator Details
+View authenticator configuration and enable or update authenticators.
+
+![Authenticator Details](./screenshots/AuthenticatorView.png)
+
+---
 
 ### Policy Management
-![View Policies](screenshots/ViewPolcies.png)
 
-![Effective Policy](screenshots/EffectivePolicy.png)
+#### Policies List
+Browse policies loaded into Conjur.
 
-### Policy Validation and Dry Run
-![In Editor Validation](screenshots/InEditorValidation.png)
-![Policy Dry Run Updates](screenshots/PolicyDryRunUpdates.png)
+![Policies List](./screenshots/PoliciesView.png)
 
-### Secret Management
-![View Secret](screenshots/ViewSecret.png)
-![View Secret](screenshots/ViewOrEditSecret.png)
+#### Policy Details
+View the contents and metadata of an individual policy.
 
-### Authenticator Management
-![View or Update Authenticator](screenshots/ViewOrUpdateAuthenticator.png)
+![Policy Details](./screenshots/PolicyView.png)
+
+#### Policy Editor
+Edit policies using the built-in YAML editor.
+
+![Policy Editor](./screenshots/PolicyEditorErrorHandling.png)
+
+#### Policy Validation
+Validate policies with a dry run before loading them into Conjur.
+
+![Policy Validation](./screenshots/PolicyDryRun.png)
+
+#### Dry Run Results
+Review the resources that will be created, updated, or deleted during a dry run.
+
+![Dry Run Results](./screenshots/PolicyDryRun.png)
