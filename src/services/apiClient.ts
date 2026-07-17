@@ -158,6 +158,12 @@ export async function apiRequestText(
       body: options.body,
     });
 
+    if (response.status === 401) {
+      localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      window.location.href = "/login";
+      return Promise.reject(new Error("Unauthorized"));
+    }
+
     if (!response.ok) {
       console.log("Response not ok:", response.status, response.statusText);
       const message = await response.json();
@@ -195,6 +201,12 @@ export async function apiRequestTextFullResponse(
       },
       body: options.body,
     });
+
+    if (response.status === 401) {
+      localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      window.location.href = "/login";
+      return Promise.reject(new Error("Unauthorized"));
+    }
 
     if (!response.ok) {
       const message = await response.text();
