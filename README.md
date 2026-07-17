@@ -6,6 +6,26 @@ This project provides a modern React-based UI for Conjur OSS, focused on making 
 
 The goal is to provide a simple developer-friendly interface for learning, testing, and working with Conjur OSS.
 
+## Table of Contents
+
+- [About](#about)
+- [Features for V1](#features-for-v1)
+- [Development Environment](#development-environment)
+- [Screenshots](#screenshots)
+  - [Resources](#resources-1)
+  - [Secrets](#secrets-1)
+  - [Groups](#groups-1)
+  - [Authenticators](#authenticators-1)
+  - [Policy Management](#policy-management-1)
+
+## About
+
+Conjur React UI started as a personal project to learn React after transitioning from the Conjur engineering team.
+
+Having spent several years working on Conjur, I wanted to build a lightweight, modern web interface that makes Conjur OSS easier to explore and manage. The project is intended to complement the existing CLI and REST API by providing a graphical interface for common workflows, while also serving as a learning tool for developers new to Conjur.
+
+The long-term goal is to continue expanding the application into a simple, open source management interface for Conjur OSS.
+
 ## Features for V1
 
 ### Authentication
@@ -145,11 +165,6 @@ View the contents and metadata of an individual policy.
 Edit policies using the built-in YAML editor.
 
 ![Policy Editor](./screenshots/PolicyEditorErrorHandling.png)
-
-#### Policy Validation
-Validate policies with a dry run before loading them into Conjur.
-
-![Policy Validation](./screenshots/PolicyDryRun.png)
 
 #### Dry Run Results
 Review the resources that will be created, updated, or deleted during a dry run.
