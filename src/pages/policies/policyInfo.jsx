@@ -36,14 +36,6 @@ export default function PolicyResourceInfo({ title, resource }) {
       {resource.members?.length > 0 && (
         <>
           <DetailRow label="Members" value={JSON.stringify(resource.members)} />
-
-          <Stack spacing={0.5}>
-            {/* {resource.members.map((member) => (
-              <Typography key={member} variant="body2">
-                {member}
-              </Typography>
-            ))} */}
-          </Stack>
         </>
       )}
 

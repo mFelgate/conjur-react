@@ -1,4 +1,4 @@
-# Conjur React UI
+# Conjur UI React 
 
 A lightweight web interface for exploring and managing a local Conjur OSS environment.
 
@@ -25,6 +25,17 @@ Conjur React UI started as a personal project to learn React after transitioning
 Having spent several years working on Conjur, I wanted to build a lightweight, modern web interface that makes Conjur OSS easier to explore and manage. The project is intended to complement the existing CLI and REST API by providing a graphical interface for common workflows, while also serving as a learning tool for developers new to Conjur.
 
 The long-term goal is to continue expanding the application into a simple, open source management interface for Conjur OSS.
+
+## Non-Goals
+
+This project is intended as a **developer learning tool and local sandbox utility** for Conjur OSS. Its goal is to simplify exploring and working with Conjur during development, not to replace or compete with enterprise management solutions.
+
+To maintain that focus, the following features are **explicitly out of scope**:
+
+- **Production security features**, such as advanced cluster health monitoring, enterprise-grade auditing, and operational dashboards.
+- **Enterprise-only capabilities**, including features such as Dynamic Secrets, advanced replication synchronization, and other Conjur Enterprise functionality.
+
+For production deployments, high-availability configurations, compliance reporting, and enterprise secret lifecycle management, please refer to the official CyberArk Conjur Enterprise documentation.
 
 ## Features for V1
 
@@ -54,6 +65,7 @@ The long-term goal is to continue expanding the application into a simple, open 
 - ✅ View authenticator details
 - ✅ Enable Authenticators
 - ✅ Create Authenticators with V2 API
+- ⬜ dynamic forms for authentictors 
 - ⬜ Authenticator validation/testing
 
 ### Policy Management
@@ -68,18 +80,17 @@ The long-term goal is to continue expanding the application into a simple, open 
 
 ## Development Environment
 
-This project is designed to run alongside the Conjur OSS development environment.
+Conjur React UI is designed to run alongside the Conjur OSS development environment.
 
-The Conjur backend should be started using the Conjur development instructions:
+The React application does not create or manage its own Conjur instance. Instead, it connects to an existing Conjur development stack and communicates with Conjur through the Vite development proxy.
+
+For detailed setup instructions, Docker configuration, networking requirements, and connecting to other Conjur environments, see:
+
+[Conjur React Development Environment](./dev/README.md)
+
+The Conjur backend should be started using the official Conjur development instructions:
 
 https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md
-
-Start the Conjur development environment:
-
-```bash
-cd conjur/dev
-./start.sh
-```
 
 ## Screenshots
 

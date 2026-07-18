@@ -63,9 +63,6 @@ export class ApiError<T = unknown> extends Error {
 
 function buildUrl(path: string, query?: object) {
   const url = new URL(path, API_BASE_URL || window.location.origin);
-  console.log("path:", path);
-
-  console.log("query:", query);
   if (query) {
     Object.entries(query as Record<string, unknown>).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
@@ -165,7 +162,6 @@ export async function apiRequestText(
     }
 
     if (!response.ok) {
-      console.log("Response not ok:", response.status, response.statusText);
       const message = await response.json();
       const apiError = JSON.parse(message) as ApiErrorResponse;
       throw new ApiError(apiError, response.status);
@@ -191,7 +187,7 @@ export async function apiRequestText(
 export async function apiRequestTextFullResponse(
   path: string,
   options: TextRequestOptions = {},
-): Promise<string> {
+): Promise<{ status: number; data: string }> {
   try {
     const response = await request(path, {
       ...options,
@@ -224,10 +220,10 @@ export async function apiRequestTextFullResponse(
     }
 
     if (response.status === 204) {
-      return "";
+      return { status: 204, data: "" };
     }
 
-    return await { status: response.status, data: await response.text() };
+    return { status: response.status, data: await response.text() };
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;

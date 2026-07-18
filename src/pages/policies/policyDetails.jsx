@@ -29,7 +29,6 @@ import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 
 export default function PolicyDetails() {
   const { serviceId } = useParams();
-  console.log(useParams());
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [effectivePolicy, setEffectivePolicy] = useState(null);
@@ -38,10 +37,7 @@ export default function PolicyDetails() {
 
   async function getEffectivePolicy(serviceId) {
     try {
-      console.log("  Loading effective policy for serviceId:", serviceId);
-      const effectivePolicy = await policyService.getEffectivePolicy(serviceId);
-      console.log(effectivePolicy);
-      setEffectivePolicy(effectivePolicy);
+      const effectivePolicy = await policyService.getEffectivePolicy(serviceId);      setEffectivePolicy(effectivePolicy);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -57,11 +53,9 @@ export default function PolicyDetails() {
     async function loadPolicyResource() {
       setLoading(true);
       setError("");
-      console.log("Loading policy for serviceId:", serviceId);
 
       try {
         const resource = await resourcesService.get(KIND, serviceId);
-        console.log("Resource:", resource);
         if (isMounted) {
           setResource(resource);
         }

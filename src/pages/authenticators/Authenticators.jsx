@@ -162,7 +162,6 @@ export default function Authenticators() {
           setAuthenticators(response);
         }
       } catch (requestError) {
-        console.log(requestError);
         // Normalize unknown error into a readable string.
         if (isMounted) {
           setError(

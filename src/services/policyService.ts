@@ -17,8 +17,6 @@ export const policyService = {
 
     const path = `/policies/${encodeURIComponent(account)}/policy/${encodeURIComponent(serviceId)}`;
 
-    console.log("Effective policy path:", path);
-
     return apiRequestText(path, {
       headers: {
         accept: "text/plain",
@@ -33,8 +31,6 @@ export const policyService = {
   ) {
     const account = localStorage.getItem("conjur.account")?.trim();
     const path = `/policies/${encodeURIComponent(account)}/policy/${encodeURIComponent(branch)}`;
-
-    console.log("Load policy path:", path);
 
     const response = await apiRequestTextFullResponse(path, {
       method: method,

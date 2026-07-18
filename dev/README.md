@@ -19,3 +19,21 @@ The development setup consists of:
 - React UI (this repository)
 
 The React container joins the existing Conjur Docker network and communicates with Conjur through the Vite development proxy.
+
+
+## Connecting to Conjur
+
+By default, the UI is configured to work with the Conjur OSS development environment.
+
+To connect the UI to another Conjur instance:
+
+1. Update the Conjur API URL in the environment configuration.
+2. If running with Docker Compose, ensure the UI container is attached to the same Docker network as the Conjur instance.
+
+Example:
+
+```yaml
+environment:
+  VITE_API_BASE_URL: http://conjur:3000
+networks:
+  - conjur_default

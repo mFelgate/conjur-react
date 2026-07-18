@@ -28,7 +28,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { resourcesService } from "../../services";
 
 function ResourceItem({ resource }) {
-  console.log(resource);
    const navigate = useNavigate();
   const parts = String(resource.id ?? "").split(":");
   return (

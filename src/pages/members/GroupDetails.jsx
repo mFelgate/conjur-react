@@ -27,7 +27,6 @@ import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 
 export default function GroupDetails() {
   const { serviceId } = useParams();
-  console.log(useParams());
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -43,7 +42,6 @@ export default function GroupDetails() {
 
       try {
         const resource = await resourcesService.get(KIND, serviceId);
-        console.log("Resource:", resource);
         if (isMounted) {
           setResource(resource);
         }

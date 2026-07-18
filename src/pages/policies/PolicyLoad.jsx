@@ -75,7 +75,6 @@ export default function PolicyLoad() {
 
     const model = editor.getModel();
     if (!model) return;
-    console.log("Dry run errors:", errors.response?.errors);
 
     const errorDecorations = errors.response?.errors.map((error) => ({
       range: new monaco.Range(error.line, 1, error.line, 1),
@@ -119,7 +118,6 @@ export default function PolicyLoad() {
       );
       setPolicyResponse(response.data);
       setResponseStatus(response.status);
-      console.log(response);
 
       if (dryRun) {
         setCreatedItems(response.data.created?.items ?? []);

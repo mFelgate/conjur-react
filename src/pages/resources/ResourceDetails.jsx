@@ -39,7 +39,7 @@ export function ResourceInfo({ title, resource }) {
     <>
       <Stack spacing={0.5}>
         <Typography variant="h4" component="h2">
-          Resource
+          {title}
           </Typography>
       <Divider />
     </Stack>
@@ -104,7 +104,6 @@ export function ResourceInfo({ title, resource }) {
 
 export default function ResourceDetails() {
   const { serviceId, kind } = useParams();
-  console.log(useParams());
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -115,16 +114,8 @@ export default function ResourceDetails() {
     async function loadResource() {
       setLoading(true);
       setError("");
-      console.log(
-        "Loading resource for serviceId:",
-        serviceId,
-        "and kind:",
-        kind,
-      );
-
       try {
         const resource = await resourcesService.get(kind, serviceId);
-        console.log("Resource:", resource);
 
         if (isMounted) {
           setResource(resource);
@@ -174,7 +165,7 @@ export default function ResourceDetails() {
           {!loading && error && <Alert severity="error">{error}</Alert>}
 
           {!loading && !error && resource && (
-            <ResourceInfo title="Resource Details" resource={resource} />
+            <ResourceInfo title="Resource" resource={resource} />
           )}
         </Stack>
       </Container>

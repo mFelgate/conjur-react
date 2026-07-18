@@ -220,8 +220,6 @@ export default function CreateAuthenticator() {
       data: form.data,
       annotations: form.annotations,
     };
-
-    console.log(payload);
     try {
       const response = await authenticatorsService.create(payload);
       setError(null);

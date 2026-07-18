@@ -163,7 +163,6 @@ function SecretValueField({ resource }) {
 
 export default function SecretDetails() {
   const { serviceId } = useParams();
-  console.log(useParams());
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [secretPresent, setSecretPresent] = useState(false);
@@ -173,16 +172,13 @@ export default function SecretDetails() {
   async function loadSecretResource(serviceId, isMounted) {
     setLoading(true);
     setError("");
-    console.log("Loading secret for serviceId:", serviceId);
 
     try {
       const resource = await resourcesService.get(KIND, serviceId);
-      console.log("Resource:", resource);
       if (resource && resource.secrets.length > 0) {
         setSecretPresent(true);
       }
 
-      console.log("Resource:", resource);
       if (isMounted) {
         setResource(resource);
       }
@@ -234,7 +230,7 @@ export default function SecretDetails() {
           {!loading && error && <Alert severity="error">{error}</Alert>}
 
           {!loading && !error && resource && (
-            <ResourceInfo title="Secret Details" resource={resource} />
+            <ResourceInfo title="Secret" resource={resource} />
           )}
 
           {!loading && !secretPresent && (

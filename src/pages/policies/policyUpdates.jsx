@@ -23,7 +23,6 @@ import { policyService } from "../../services/policyService";
 import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 
 export default function PolicyUpdates({ UpdatedResources }) {
- console.log("UpdatedResources:", UpdatedResources);
   const beforeItems = UpdatedResources?.before?.items ?? [];
   const afterItems = UpdatedResources?.after?.items ?? [];
   // Compare two arrays of objects and return the added and removed items
@@ -155,11 +154,6 @@ export default function PolicyUpdates({ UpdatedResources }) {
           afterItem.permitted,
         );
         const resourceId = beforeItem.identifier;
-        // console.log("Resource ID:", resourceId);
-        // console.log("Members Change:", membersChange);
-        // console.log("Annotations Change:", annotationsChange);  
-        // console.log("Restrictions Change:", restrictionsChange);
-        // console.log("Permission Changes:", permissionChanges);
         return (
           <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
             <Typography variant="h6" color="text.secondary">
