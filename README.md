@@ -9,7 +9,9 @@ The goal is to provide a simple developer-friendly interface for learning, testi
 ## Table of Contents
 
 - [About](#about)
+- [Non-Goals](#non-goals)
 - [Features for V1](#features-for-v1)
+- [V2 - Scaling and Visualization](#v2---scaling-and-visualization)
 - [Development Environment](#development-environment)
 - [Screenshots](#screenshots)
   - [Resources](#resources-1)
@@ -77,6 +79,34 @@ For production deployments, high-availability configurations, compliance reporti
 - ✅ Policy dry-run validation
 - ✅ View created, deleted, and updated resources during dry-run
 
+### V2 - Scaling and Visualization
+
+The goal of V2 is to improve usability for larger Conjur environments and make
+
+authorization relationships easier to understand.
+
+- ⬜ Role/resource graph visualization
+
+  - Visualize relationships between users, groups, layers, policies, resources, and permissions
+
+  - Help answer "why does this identity have access to this resource?"
+
+- ⬜ Server-side resource search
+
+  - Move filtering from the UI into API queries
+
+  - Support searching large environments without loading all resources locally
+
+- ⬜ Resource pagination
+
+  - Add offset/limit pagination for large resource collections
+
+  - Improve performance and initial load times
+
+- ⬜ Advanced resource filtering
+
+  - Filter by resource type, ownership, policy branch, and permissions
+
 
 ## Development Environment
 
@@ -90,7 +120,7 @@ For detailed setup instructions, Docker configuration, networking requirements, 
 
 The Conjur backend should be started using the official Conjur development instructions:
 
-https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.md
+https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.mdgit
 
 ## Screenshots
 

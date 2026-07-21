@@ -38,7 +38,6 @@ export default function GroupDetails() {
     async function loadGroupResource() {
       setLoading(true);
       setError("");
-      console.log("Loading group for serviceId:", serviceId);
 
       try {
         const resource = await resourcesService.get(KIND, serviceId);

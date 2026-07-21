@@ -101,8 +101,6 @@ export default function PolicyLoad() {
     monaco.editor.setModelMarkers(model, "dry-run", markers);
   };
 
-
-
   const handleSubmit = async () => {
     clearErrors();
     setLoading(true);
@@ -202,56 +200,60 @@ export default function PolicyLoad() {
           </Paper>
 
           {!error && policyResponse && responseStatus == "200" && (
-            <>
-              <Stack spacing={2}>
-                <Typography variant="h6" sx={{ mt: 1 }}>
-                  Resource to Be Created
-                </Typography>
-
-                {!createdItems || createdItems.length === 0 ? (
-                  <Alert severity="info">No resources will be created.</Alert>
-                ) : (
-                  <Stack spacing={1}>
-                    {createdItems.map((resource) => (
-                      <Paper key={resource.id} variant="outlined" sx={{ p: 2 }}>
-                        <PolicyResourceInfo
+            <Stack spacing={2}>
+              {!createdItems ||
+                (createdItems.length != 0 && (
+                  <>
+                    <Typography variant="h6" sx={{ mt: 1 }}>
+                      Resource to Be Created
+                    </Typography>
+                    <Stack spacing={1}>
+                      {createdItems.map((resource) => (
+                        <Paper
                           key={resource.id}
-                          title="Created Resource"
-                          resource={resource}
-                        />
-                      </Paper>
-                    ))}
-                  </Stack>
-                )}
+                          variant="outlined"
+                          sx={{ p: 2 }}
+                        >
+                          <PolicyResourceInfo
+                            key={resource.id}
+                            title="Created Resource"
+                            resource={resource}
+                          />
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </>
+                ))}
 
-                <Typography variant="h6" sx={{ mt: 1 }}>
-                  Resource to Be Deleted
-                </Typography>
-
-                {!deletedItems || deletedItems.length === 0 ? (
-                  <Alert severity="info">No resources will be deleted.</Alert>
-                ) : (
-                  <Stack spacing={1}>
-                    {deletedItems.map((resource) => (
-                      <Paper key={resource.id} variant="outlined" sx={{ p: 2 }}>
-                        <PolicyResourceInfo
+              {!deletedItems ||
+                (deletedItems.length != 0 && (
+                  <>
+                    <Typography variant="h6" sx={{ mt: 1 }}>
+                      Resource to Be Deleted
+                    </Typography>
+                    <Stack spacing={1}>
+                      {deletedItems.map((resource) => (
+                        <Paper
                           key={resource.id}
-                          title="Deleted Resource"
-                          resource={resource}
-                        />
-                      </Paper>
-                    ))}
-                  </Stack>
-                )}
+                          variant="outlined"
+                          sx={{ p: 2 }}
+                        >
+                          <PolicyResourceInfo
+                            key={resource.id}
+                            title="Deleted Resource"
+                            resource={resource}
+                          />
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </>
+                ))}
 
-                <Typography variant="h6" sx={{ mt: 1 }}>
-                  Resource To Be Updated
-                </Typography>
-                <PolicyUpdates
-                  UpdatedResources={policyResponse.updated}
-                />
-              </Stack>
-            </>
+              <Typography variant="h6" sx={{ mt: 1 }}>
+                Resource To Be Updated
+              </Typography>
+              <PolicyUpdates UpdatedResources={policyResponse.updated} />
+            </Stack>
           )}
         </Stack>
       </Container>

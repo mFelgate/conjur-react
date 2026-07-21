@@ -8,6 +8,9 @@ import {
   Stack,
   List,
   ListItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   ListItemText,
   Switch,
   FormControlLabel,
@@ -19,6 +22,7 @@ import {
 } from "@mui/material";
 import Editor from "@monaco-editor/react";
 import { configureMonacoYaml } from "monaco-yaml";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { policyService } from "../../services/policyService";
 import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 
@@ -72,9 +76,9 @@ export default function PolicyUpdates({ UpdatedResources }) {
   function RenderChanges(changes, Type) {
     return (
       <>
-      <Typography variant="h8" color="text.secondary">
-        {Type}
-      </Typography>
+        <Typography variant="h8" color="text.secondary">
+          {Type}
+        </Typography>
         {changes.added.map((item) => (
           <Box key={item}>
             <Typography
@@ -96,30 +100,29 @@ export default function PolicyUpdates({ UpdatedResources }) {
   }
 
   function RenderObjectChanges(changes, Type) {
-  return (
-    <>
+    return (
+      <>
+        <Typography variant="h8" color="text.secondary">
+          {Type}
+        </Typography>
 
-      <Typography variant="h8" color="text.secondary">
-        {Type}
-      </Typography>
-
-      {Object.entries(changes.added).map(([key, value]) => (
-        <Box key={key}>
-          <Typography sx={{ color: "success.main" }}>
-            + {key}: {JSON.stringify(value)}
-          </Typography>
-        </Box>
-      ))}
-      {Object.entries(changes.removed).map(([key, value]) => (
-        <Box key={key}>
-          <Typography sx={{ color: "error.main" }}>
-            - {key}: {JSON.stringify(value)}
-          </Typography>
-        </Box>
-      ))}
-    </>
-  );
-}
+        {Object.entries(changes.added).map(([key, value]) => (
+          <Box key={key}>
+            <Typography sx={{ color: "success.main" }}>
+              + {key}: {JSON.stringify(value)}
+            </Typography>
+          </Box>
+        ))}
+        {Object.entries(changes.removed).map(([key, value]) => (
+          <Box key={key}>
+            <Typography sx={{ color: "error.main" }}>
+              - {key}: {JSON.stringify(value)}
+            </Typography>
+          </Box>
+        ))}
+      </>
+    );
+  }
 
   if (beforeItems.length === 0) {
     return <Alert severity="info">No resources will be updated.</Alert>;
@@ -155,17 +158,39 @@ export default function PolicyUpdates({ UpdatedResources }) {
         );
         const resourceId = beforeItem.identifier;
         return (
-          <Paper key={resourceId} variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="h6" color="text.secondary">
-              {resourceId}
-            </Typography>
-            {membersChange.added.length > 0 || membersChange.removed.length > 0 ? RenderChanges(membersChange, "Members") : null}
-                 {memberships.added.length > 0 || memberships.removed.length > 0 ? RenderChanges(memberships, "Memberships") : null}
-            {Object.keys(annotationsChange.added).length > 0 || Object.keys(annotationsChange.removed).length > 0 ? RenderObjectChanges(annotationsChange, "Annotations") : null}
-            {restrictionsChange.added.length > 0 || restrictionsChange.removed.length > 0 ? RenderChanges(restrictionsChange, "Restrictions") : null}
-            {Object.keys(permissionChanges.added).length > 0 || Object.keys(permissionChanges.removed).length > 0 ? RenderObjectChanges(permissionChanges, "Permissions") : null}
-            {Object.keys(permittedChanges.added).length > 0 || Object.keys(permittedChanges.removed).length > 0 ? RenderObjectChanges(permittedChanges, "Permitted") : null}
-          </Paper>
+          <Accordion key={resourceId} variant="outlined">
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="h6" color="text.secondary">
+                {resourceId}
+              </Typography>
+            </AccordionSummary>
+
+            <AccordionDetails>
+              {membersChange.added.length > 0 ||
+              membersChange.removed.length > 0
+                ? RenderChanges(membersChange, "Members")
+                : null}
+              {memberships.added.length > 0 || memberships.removed.length > 0
+                ? RenderChanges(memberships, "Memberships")
+                : null}
+              {Object.keys(annotationsChange.added).length > 0 ||
+              Object.keys(annotationsChange.removed).length > 0
+                ? RenderObjectChanges(annotationsChange, "Annotations")
+                : null}
+              {restrictionsChange.added.length > 0 ||
+              restrictionsChange.removed.length > 0
+                ? RenderChanges(restrictionsChange, "Restrictions")
+                : null}
+              {Object.keys(permissionChanges.added).length > 0 ||
+              Object.keys(permissionChanges.removed).length > 0
+                ? RenderObjectChanges(permissionChanges, "Permissions")
+                : null}
+              {Object.keys(permittedChanges.added).length > 0 ||
+              Object.keys(permittedChanges.removed).length > 0
+                ? RenderObjectChanges(permittedChanges, "Permitted")
+                : null}
+            </AccordionDetails>
+          </Accordion>
         );
       })}
     </Stack>
