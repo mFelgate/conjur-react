@@ -24,6 +24,22 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { secretsService, resourcesService } from "../../services";
 import { ResourceInfo, DetailRow } from "../resources/resourceDetails.jsx";
 
+function formatValue(value) {
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+
+  return typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+    ? String(value)
+    : JSON.stringify(value, null, 2);
+}
+
 function AddSecretField({ resource, onSecretAdded }) {
   const [value, setValue] = useState("");
 
@@ -62,7 +78,7 @@ function AddSecretField({ resource, onSecretAdded }) {
   );
 }
 
-function SecretValueField({ resource }) {
+export function SecretValueField({ resource }) {
   const parts = String(resource.id ?? "").split(":");
   const serviceId = parts[2];
   const kind = parts[1];
@@ -72,7 +88,7 @@ function SecretValueField({ resource }) {
   const startEdit = async () => {
     setEditing(true);
     const value = await secretsService.get(kind, serviceId);
-    setEditedValue(value);
+    setEditedValue(formatValue(value));
   };
 
   const cancelEdit = () => {
@@ -131,7 +147,8 @@ function SecretValueField({ resource }) {
           <TextField
             fullWidth
             multiline
-            minRows={12}
+            minRows={1}
+            maxRows={12}
             value={editedValue}
             onChange={(e) => setEditedValue(e.target.value)}
             spellCheck={false}

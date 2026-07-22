@@ -13,172 +13,18 @@ import {
   Typography,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-
+import { authenticatorSchemas } from "./authenticatorSchema";
 import { authenticatorsService } from "../../services";
-export const authenticatorSchemas = {
-  oidc: [
-    {
-      key: "provider_uri",
-      label: "Provider URI",
-      type: "text",
-    },
-    {
-      key: "ca_cert",
-      label: "CA Certificate",
-      type: "textarea",
-    },
-    {
-      key: "token_ttl",
-      label: "Token TTL",
-      type: "text",
-      placeholder: "300s",
-    },
-    {
-      key: "provider_scope",
-      label: "Provider Scope",
-      type: "text",
-      placeholder: "openid email profile",
-    },
-    {
-      key: "client_id",
-      label: "Client ID",
-      type: "text",
-    },
-    {
-      key: "client_secret",
-      label: "Client Secret",
-      type: "password",
-    },
-    {
-      key: "redirect_uri",
-      label: "Redirect URI",
-      type: "text",
-    },
-    {
-      key: "claim_mapping",
-      label: "Claim Mapping",
-      type: "textarea",
-    },
-  ],
-
-  jwt: [
-    {
-      key: "jwks_uri",
-      label: "JWKS URI",
-      type: "text",
-    },
-    {
-      key: "issuer",
-      label: "Issuer",
-      type: "text",
-    },
-    {
-      key: "audience",
-      label: "Audience",
-      type: "text",
-    },
-    {
-      key: "public_keys",
-      label: "Public Keys",
-      type: "textarea",
-      format: "json",
-    },
-    {
-      key: "identity.token_app_property",
-      label: "Token App Property",
-      type: "text",
-    },
-    {
-      key: "identity.enforced_claims",
-      label: "Enforced Claims",
-      type: "array",
-    },
-    {
-      key: "identity.claim_aliases",
-      label: "Claim Aliases",
-      type: "json",
-    },
-    {
-      key: "identity.identity_path",
-      label: "Identity Path",
-      type: "text",
-    },
-  ],
-
-  k8s: [
-    {
-      key: "kubernetes/api_url",
-      label: "Kubernetes API URL",
-      type: "text",
-    },
-    {
-      key: "kubernetes/ca_cert",
-      label: "Kubernetes CA Certificate",
-      type: "textarea",
-    },
-    {
-      key: "kubernetes/service_account_token",
-      label: "Service Account Token",
-      type: "password",
-    },
-    {
-      key: "ca/key",
-      label: "CA Key",
-      type: "password",
-    },
-    {
-      key: "ca/cert",
-      label: "CA Certificate",
-      type: "textarea",
-    },
-  ],
-
-  azure: [
-    {
-      key: "provider_uri",
-      label: "Provider URI",
-      type: "text",
-    },
-  ],
-
-  gcp: [
-  ],
-
-  ldap: [
-    {
-      key: "bind_password",
-      label: "Bind Password",
-      type: "password",
-    },
-    {
-      key: "tls_ca_cert",
-      label: "TLS CA Certificate",
-      type: "textarea",
-    },
-  ],
-
-  certificate: [
-    {
-      key: "ca_cert",
-      label: "CA Certificate",
-      type: "textarea",
-    },
-    {
-      key: "crl_url",
-      label: "CRL URL",
-      type: "text",
-    },
-  ],
-};
 
 function AuthenticatorFields({ schema, data, onChange }) {
   return (
     <>
       {schema.map((field) => (
         <TextField
-          key={field.key}
-          label={field.label}
-          type={field.type}
+          label={field.required ? `${field.label} *` : field.label}
+          type={field.type === "password" ? "password" : "text"}
+          multiline={field.type === "textarea"}
+          minRows={field.type === "textarea" ? 8 : undefined}
           value={data[field.key] ?? ""}
           onChange={(event) => onChange(field.key, event.target.value)}
           fullWidth
@@ -189,7 +35,7 @@ function AuthenticatorFields({ schema, data, onChange }) {
 }
 
 export default function CreateAuthenticator() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     type: "oidc",
     name: "",
@@ -217,21 +63,27 @@ export default function CreateAuthenticator() {
       type: form.type,
       name: form.name,
       enabled: form.enabled,
-      data: form.data,
+      data: { ...form.data },
       annotations: form.annotations,
     };
+
     try {
+      if (
+        payload.type === "jwt" &&
+        typeof payload.data.public_keys === "string"
+      ) {
+        payload.data.public_keys = JSON.parse(payload.data.public_keys);
+      }
       const response = await authenticatorsService.create(payload);
       setError(null);
       setCreatedAuthenticator(response);
     } catch (error) {
-      console.error("Failed to create authenticator:", error);
       setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to create authenticator.",
+        error.response?.message ||
+          error.body?.message ||
+          error.message ||
+          "Failed to create authenticator.",
       );
-      // Handle error (e.g., show a notification)
     }
   }
 
@@ -307,15 +159,20 @@ export default function CreateAuthenticator() {
           {error}
         </Alert>
       )}
+      {console.log("render error:", error)}
       {createdAuthenticator && (
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
-        <Alert color="success" sx={{ mt: 2 }}>
-          Authenticator created successfully!
-        </Alert>
-                 <Button
+          <Alert color="success" sx={{ mt: 2 }}>
+            Authenticator created successfully!
+          </Alert>
+          <Button
             variant="contained"
             startIcon={<VisibilityIcon />}
-            onClick={() => navigate(`/authenticators/${createdAuthenticator.type}/${createdAuthenticator.name}`)}
+            onClick={() =>
+              navigate(
+                `/authenticators/${createdAuthenticator.type}/${createdAuthenticator.name}`,
+              )
+            }
           >
             View Authenticator
           </Button>
