@@ -226,6 +226,7 @@ export default function Dashboard() {
         JWT: "jwt",
         Kubernetes: "k8s",
         AWS: "iam",
+        Azure: "azure",
         Certificate: "cert",
         };
     };

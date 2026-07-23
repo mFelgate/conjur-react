@@ -18,6 +18,8 @@ import {
   ListItemText,
 } from "@mui/material";
 
+import { useState } from "react";
+
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
@@ -26,6 +28,8 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import MenuIcon from "@mui/icons-material/Menu";
+import IconButton from "@mui/material/IconButton";
 
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { AuthProvider } from "./auth/AuthContext";
@@ -52,7 +56,64 @@ function App() {
   );
 }
 
-function NavBar() {
+function DrawerContent({ logout }) {
+  return (
+    <>
+      <img
+        src="/conjur-logo.svg"
+        alt="Conjur"
+        style={{
+          width: "182px",
+          margin: "20px",
+          filter: "brightness(0) saturate(100%)",
+        }}
+      />
+
+      <List>
+        <ListItemButton component={Link} to="/dashboard">
+          <DashboardIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Dashboard" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/resources">
+          <Inventory2OutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Resources" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to="/resources?kind=variable">
+          <KeyOutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Secrets" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to="/resources?kind=group">
+          <GroupOutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Groups" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to="/authenticators">
+          <SecurityOutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Authenticators" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to="/resources?kind=policy">
+          <DescriptionOutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Policy" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to="/policy/load">
+          <CloudUploadIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Load Policy" />
+        </ListItemButton>
+
+        <ListItemButton onClick={logout}>
+          <LogoutOutlinedIcon sx={{ mr: 2 }} />
+          <ListItemText primary="Logout" />
+        </ListItemButton>
+      </List>
+    </>
+  );
+}
+
+function NavBar({ mobileOpen, handleDrawerToggle }) {
   const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const showNavbar = isAuthenticated && location.pathname !== "/login";
@@ -64,80 +125,49 @@ function NavBar() {
   return (
     <>
       {showNavbar && (
-        <Drawer
-          variant="permanent"
-          sx={{
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-            },
-          }}
-        >
-          <img
-            src="/conjur-logo.svg"
-            alt="Conjur"
-            style={{
-              width: "182px",
-              height: "auto",
-              margin: "20px",
-              filter: "brightness(0) saturate(100%)",
+        <>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: "none", lg: "block" },
+              "& .MuiDrawer-paper": {
+                width: 240,
+                boxSizing: "border-box",
+              },
             }}
-          />
-          <List>
-            <ListItemButton component={Link} to="/dashboard">
-              <DashboardIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/resources">
-              <Inventory2OutlinedIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Resources" />
-            </ListItemButton>
+            open
+          >
+            <DrawerContent logout={logout} />
+          </Drawer>
 
-            <ListItemButton component={Link} to="/resources?kind=variable">
-              <KeyOutlinedIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Secrets" />
-            </ListItemButton>
-
-            <ListItemButton component={Link} to="/resources?kind=group">
-              <GroupOutlinedIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Groups" />
-            </ListItemButton>
-
-            <ListItemButton component={Link} to="/authenticators">
-              <SecurityOutlinedIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Authenticators" />
-            </ListItemButton>
-
-            <ListItemButton component={Link} to="/resources?kind=policy">
-              <DescriptionOutlinedIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Policy" />
-            </ListItemButton>
-
-            <ListItemButton component={Link} to="/policy/load">
-              <CloudUploadIcon sx={{ mr: 2 }} />
-              <ListItemText primary="Load Policy" />
-            </ListItemButton>
-
-
-            {isAuthenticated ? (
-              <ListItemButton onClick={logout}>
-                <LogoutOutlinedIcon sx={{ mr: 2 }} />
-                <ListItemText primary="Logout" />
-              </ListItemButton>
-            ) : (
-              <ListItemButton onClick={login}>
-                <LoginOutlinedIcon sx={{ mr: 2 }} />
-                <ListItemText primary="Login" />
-              </ListItemButton>
-            )}
-          </List>
-        </Drawer>
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true,
+            }}
+            sx={{
+              display: { xs: "block", lg: "none" },
+              "& .MuiDrawer-paper": {
+                width: 240,
+                boxSizing: "border-box",
+              },
+            }}
+          >
+            <DrawerContent logout={logout} />
+          </Drawer>
+        </>
       )}
     </>
   );
 }
 
 function AppShell() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const handleDrawerToggle = () => {
+    setMobileOpen((prev) => !prev);
+  };
   const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const showNavbar = isAuthenticated && location.pathname !== "/login";
@@ -145,7 +175,36 @@ function AppShell() {
   return (
     <>
       <Box sx={{ display: "flex" }}>
-        <NavBar />
+        <AppBar
+          position="fixed"
+          sx={{
+            display: { xs: "block", lg: "none" },
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+
+            <img
+              src="/conjur-logo.svg"
+              alt="Conjur"
+              style={{
+                width: "182px",
+                margin: "20px",
+                filter: "brightness(0) saturate(100%)",
+              }}
+            />
+          </Toolbar>
+        </AppBar>
+        <NavBar
+          mobileOpen={mobileOpen}
+          handleDrawerToggle={handleDrawerToggle}
+        />
         <Box
           component="main"
           sx={{
@@ -153,6 +212,7 @@ function AppShell() {
             p: 3,
           }}
         >
+            <Toolbar sx={{ display: { xs: "block", lg: "none" } }} />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/resources" replace />} />

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Container, Stack, TextField, Typography, Alert } from '@mui/material'
+import { Box, Button, Container, Stack, TextField, Typography, Alert, Paper } from '@mui/material'
 import { useAuth } from '../auth/useAuth'
 
 export default function Login() {
@@ -28,6 +28,7 @@ export default function Login() {
   return (
     <Box sx={{ py: 4 }}>
       <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Login
         </Typography>
@@ -52,6 +53,7 @@ export default function Login() {
             </Button>
           </Stack>
         </Box>
+        </Paper>
       </Container>
     </Box>
   )

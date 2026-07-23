@@ -78,6 +78,16 @@ typography: {
         },
       },
     },
+    MuiAppBar: {
+  styleOverrides: {
+    root: {
+      backgroundColor: "#ffffff",
+      color: "#0b1f33",
+      borderBottom: "1px solid #d9e2ec",
+      boxShadow: "none",
+    },
+  },
+},
     MuiPaper: {
       styleOverrides: {
         root: {
