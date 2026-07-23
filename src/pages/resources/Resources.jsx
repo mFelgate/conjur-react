@@ -9,7 +9,11 @@ import {
   Container,
   Stack,
   TextField,
+  Button,
   Typography,
+  Select,
+  MenuItem,
+  TablePagination,
 } from "@mui/material";
 
 import Table from "@mui/material/Table";
@@ -26,6 +30,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 // Service-layer import (Angular-style service pattern).
 // The page calls this service; it does not call fetch() directly.
 import { resourcesService } from "../../services";
+
+import { useSearchParams } from "react-router-dom";
+
 function ResourceItem({ resource }) {
   const navigate = useNavigate();
   const parts = String(resource.id ?? "").split(":");
@@ -61,6 +68,16 @@ function ResourceItem({ resource }) {
 }
 
 export default function Resources() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState("");
+  const [filters, setFilters] = useState({
+    type: searchParams.get("kind") ?? "",
+    search: "",
+  });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [count, setCount] = useState(0);
+
   // Stores fetched resources from the API.
   const [resources, setResources] = useState([]);
 
@@ -70,27 +87,14 @@ export default function Resources() {
   // Stores friendly error text when a request fails.
   const [error, setError] = useState("");
 
-  // Controlled input value for search text.
-  const [search, setSearch] = useState("");
 
-  // Memoized filtered list (runs only when resources/search changes).
-  // This is client-side filtering for learning/demo purposes.
-  const filteredResources = useMemo(() => {
-    // Normalize search value for case-insensitive compare.
-    const query = search.trim().toLowerCase();
-
-    // If query is empty, show all data.
-    if (!query) {
-      return resources;
-    }
-
-    // Filter by id/kind text.
-    return resources.filter((resource) => {
-      const id = String(resource.id ?? "").toLowerCase();
-      const kind = String(resource.kind ?? "").toLowerCase();
-      return id.includes(query) || kind.includes(query);
-    });
-  }, [resources, search]);
+  function handleTypeChange(event) {
+    setFilters(prev => ({
+      ...prev,
+      type: event.target.value,
+    }));
+    setPage(0);
+  }
 
   // Effect runs once on first render (equivalent idea to ngOnInit).
   useEffect(() => {
@@ -109,11 +113,26 @@ export default function Resources() {
         // - Resource[]
         // - { items: Resource[] }
         // - { resources: Resource[] }
-        const response = await resourcesService.list();
+        console.log("query type:", filters.type);
+        const response = await resourcesService.list({
+          kind: filters.type || undefined,
+          search: filters.search || undefined,
+          offset: page * rowsPerPage,
+          limit: rowsPerPage,
+        });
 
+        const countRespons = await resourcesService.list({
+          kind: filters.type || undefined,
+          search: filters.search || undefined,
+          count: true,
+        });
+
+     
         // Only update state if component still exists.
         if (isMounted) {
           setResources(response);
+           setCount(countRespons.count);
+
         }
       } catch (requestError) {
         // Normalize unknown error into a readable string.
@@ -139,7 +158,21 @@ export default function Resources() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [filters.type, filters.search, page, rowsPerPage]);
+
+  useEffect(() => {
+
+  setFilters((prev) => ({
+
+    ...prev,
+
+    type: searchParams.get("kind") ?? "",
+
+  }));
+
+  setPage(0);
+
+}, [searchParams]);
 
   return (
     // Outer page spacing wrapper.
@@ -148,32 +181,55 @@ export default function Resources() {
       <Container>
         {/* Page title */}
         <Stack justifyContent="space-between" alignItems="center">
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Resources
-        </Typography>
+          <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+            Resources
+          </Typography>
 
-        {/* <Stack direction="row" spacing={2} flexWrap="wrap" p={1} sx={{ mb: 2 }}>
+          {/* <Stack direction="row" spacing={2} flexWrap="wrap" p={1} sx={{ mb: 2 }}>
           <ResourceCount type="host" />
           <ResourceCount type="variable" />
           <ResourceCount type="user" />
           <ResourceCount type="group" />
         </Stack> */}
 
-        <Typography variant="body1">
-          Browse and manage all resources in your Conjur instance.
-        </Typography>
-
-      </Stack>
+          <Typography variant="body1">
+            Browse and manage all resources in your Conjur instance.
+          </Typography>
+        </Stack>
         {/* Vertical stack for form + status + list */}
         <Stack spacing={2} sx={{ mt: 3 }}>
           {/* Search field (client-side filter) */}
-          <TextField
-            label="Search resources"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Type id or kind"
-            fullWidth
-          />
+          <Stack direction="row" spacing={2} flexWrap="wrap">
+            <TextField
+              label="Search resources"
+               value={searchInput}
+             onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Type id or kind"
+              fullWidth
+            />
+
+            <Select value={filters.type || ""} onChange={handleTypeChange} displayEmpty>
+              <MenuItem value="">All Resources</MenuItem>
+              <MenuItem value="host">Hosts</MenuItem>
+              <MenuItem value="variable">Variables</MenuItem>
+              <MenuItem value="group">Groups</MenuItem>
+              <MenuItem value="user">Users</MenuItem>
+              <MenuItem value="webservice">Webservices</MenuItem>
+              <MenuItem value="layer">Layers</MenuItem>
+              <MenuItem value="policy">Policy</MenuItem>
+            </Select>
+
+            <Button
+              onClick={() =>
+                setFilters((prev) => ({
+                  ...prev,
+                  search: searchInput,
+                }))
+              }
+            >
+              Search
+            </Button>
+          </Stack>
 
           {/* Loading state UI */}
           {loading && (
@@ -191,16 +247,8 @@ export default function Resources() {
             <Alert severity="info">No resources returned by API.</Alert>
           )}
 
-          {/* Empty filter state (data exists, but search excludes all) */}
-          {!loading &&
-            !error &&
-            resources.length > 0 &&
-            filteredResources.length === 0 && (
-              <Alert severity="info">No resources match your search.</Alert>
-            )}
-
           {/* Data list */}
-          {!loading && !error && filteredResources.length > 0 && (
+          {!loading && !error && resources.length > 0 && (
             <TableContainer component={Paper}>
               <Table
                 sx={{ minWidth: 650 }}
@@ -218,11 +266,25 @@ export default function Resources() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredResources.map((resource) => (
+                  {resources.map((resource) => (
                     <ResourceItem resource={resource} />
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                component="div"
+                count={count}
+                page={page}
+                onPageChange={(event, newPage) => {
+                  setPage(newPage);
+                }}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={(event) => {
+                  setRowsPerPage(parseInt(event.target.value, 10));
+                  setPage(0);
+                }}
+                rowsPerPageOptions={[10, 25, 50, 100]}
+              />
             </TableContainer>
           )}
         </Stack>

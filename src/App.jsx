@@ -25,6 +25,7 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { AuthProvider } from "./auth/AuthContext";
@@ -34,16 +35,11 @@ import Login from "./pages/Login";
 import AuthenticatorDetails from "./pages/authenticators/AuthenticatorDetails.jsx";
 import AuthenticatorForm from "./pages/authenticators/CreateAuthenticator.jsx";
 import Authenticators from "./pages/authenticators/Authenticators.jsx";
-import Policies from "./pages/policies/Policy";
-import PolicyDetails from "./pages/policies/policyDetails.jsx";
 import PolicyLoad from "./pages/policies/PolicyLoad.jsx";
 import Resources from "./pages/resources/Resources.jsx";
 import ResourceDetail from "./pages/resources/ResourceDetails.jsx";
-import Secrets from "./pages/secrets/Secrets.jsx";
-import Groups from "./pages/members/Groups.jsx";
 import Dashboard from "./pages/dashboard/dashboard.jsx";
-import GroupDetails from "./pages/members/GroupDetails.jsx";
-import SecretDetails from "./pages/secrets/SecretDetails.jsx";
+
 import "./App.css";
 
 function App() {
@@ -77,12 +73,16 @@ function NavBar() {
             },
           }}
         >
-                    <img
-    src="/conjur-logo.svg"
-    alt="Conjur"
-    style={{ width: "182px", height: "auto", margin: "20px", filter: "brightness(0) saturate(100%)", }}
-
-  />
+          <img
+            src="/conjur-logo.svg"
+            alt="Conjur"
+            style={{
+              width: "182px",
+              height: "auto",
+              margin: "20px",
+              filter: "brightness(0) saturate(100%)",
+            }}
+          />
           <List>
             <ListItemButton component={Link} to="/dashboard">
               <DashboardIcon sx={{ mr: 2 }} />
@@ -93,12 +93,12 @@ function NavBar() {
               <ListItemText primary="Resources" />
             </ListItemButton>
 
-            <ListItemButton component={Link} to="/secrets">
+            <ListItemButton component={Link} to="/resources?kind=variable">
               <KeyOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Secrets" />
             </ListItemButton>
 
-            <ListItemButton component={Link} to="/groups">
+            <ListItemButton component={Link} to="/resources?kind=group">
               <GroupOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Groups" />
             </ListItemButton>
@@ -108,10 +108,16 @@ function NavBar() {
               <ListItemText primary="Authenticators" />
             </ListItemButton>
 
-            <ListItemButton component={Link} to="/policy">
+            <ListItemButton component={Link} to="/resources?kind=policy">
               <DescriptionOutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Policy" />
             </ListItemButton>
+
+            <ListItemButton component={Link} to="/policy/load">
+              <CloudUploadIcon sx={{ mr: 2 }} />
+              <ListItemText primary="Load Policy" />
+            </ListItemButton>
+
 
             {isAuthenticated ? (
               <ListItemButton onClick={logout}>
@@ -147,7 +153,6 @@ function AppShell() {
             p: 3,
           }}
         >
-
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/resources" replace />} />
@@ -184,26 +189,10 @@ function AppShell() {
               }
             />
             <Route
-              path="/policy"
-              element={
-                <ProtectedRoute>
-                  <Policies />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/policy/:serviceId"
-              element={
-                <ProtectedRoute>
-                  <PolicyDetails />
                 </ProtectedRoute>
               }
             />
@@ -220,38 +209,6 @@ function AppShell() {
               element={
                 <ProtectedRoute>
                   <AuthenticatorForm />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/secrets"
-              element={
-                <ProtectedRoute>
-                  <Secrets />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/groups"
-              element={
-                <ProtectedRoute>
-                  <Groups />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/secrets/:serviceId"
-              element={
-                <ProtectedRoute>
-                  <SecretDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/groups/:serviceId"
-              element={
-                <ProtectedRoute>
-                  <GroupDetails />
                 </ProtectedRoute>
               }
             />

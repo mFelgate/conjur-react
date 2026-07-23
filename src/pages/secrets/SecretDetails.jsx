@@ -40,7 +40,7 @@ function formatValue(value) {
     : JSON.stringify(value, null, 2);
 }
 
-function AddSecretField({ resource, onSecretAdded }) {
+function AddSecretField({ resource }) {
   const [value, setValue] = useState("");
 
   const parts = String(resource.id ?? "").split(":");
@@ -49,7 +49,6 @@ function AddSecretField({ resource, onSecretAdded }) {
 
   const saveSecret = async () => {
     await secretsService.set(kind, serviceId, value);
-    onSecretAdded();
     // reload resource or flip secretPresent
   };
 
@@ -178,95 +177,30 @@ export function SecretValueField({ resource }) {
   );
 }
 
-export default function SecretDetails() {
-  const { serviceId } = useParams();
-  const [resource, setResource] = useState(null);
+export default function SecretDetails({ resource }) {
   const [loading, setLoading] = useState(true);
   const [secretPresent, setSecretPresent] = useState(false);
   const [error, setError] = useState("");
-  const KIND = "variable";
-
-  async function loadSecretResource(serviceId, isMounted) {
-    setLoading(true);
-    setError("");
-
-    try {
-      const resource = await resourcesService.get(KIND, serviceId);
-      if (resource && resource.secrets.length > 0) {
-        setSecretPresent(true);
-      }
-
-      if (isMounted) {
-        setResource(resource);
-      }
-    } catch (requestError) {
-      if (isMounted) {
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Failed to load secret.",
-        );
-      }
-    } finally {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }
-  }
-
-  useEffect(() => {
-    let isMounted = true;
-
-    loadSecretResource(serviceId, isMounted);
-
-    return () => {
-      isMounted = false;
-    };
-  }, [serviceId]);
 
   return (
     <Box sx={{ py: 4 }}>
-      <Container>
         <Stack spacing={3}>
-          <Button
-            component={Link}
-            to="/secrets"
-            startIcon={<ArrowBackIcon />}
-            sx={{ alignSelf: "flex-start" }}
-          >
-            Secrets
-          </Button>
 
-          {loading && (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <CircularProgress size={18} />
-              <Typography variant="body2">Loading secret...</Typography>
-            </Stack>
-          )}
-
-          {!loading && error && <Alert severity="error">{error}</Alert>}
-
-          {!loading && !error && resource && (
-            <ResourceInfo title="Secret" resource={resource} />
-          )}
-
-          {!loading && !secretPresent && (
+          { resource?.secrets.length === 0 && (
             <>
               <Alert severity="info">Secret not found.</Alert>
               <AddSecretField
                 resource={resource}
-                onSecretAdded={() => loadSecretResource(serviceId, true)}
               />
             </>
           )}
 
-          {!loading && !error && secretPresent && (
+        { resource?.secrets.length > 0 && (
             <>
               <SecretValueField resource={resource} />
             </>
           )}
         </Stack>
-      </Container>
     </Box>
   );
 }

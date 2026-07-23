@@ -22,6 +22,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import { resourcesService } from "../../services";
+import SecretDetails from "../secrets/SecretDetails.jsx";
+import GroupDetails from "../members/GroupDetails.jsx";
+import PolicyDetails from "../policies/policyDetails.jsx";
 
 export function DetailRow({ label, value }) {
   return (
@@ -119,6 +122,7 @@ export default function ResourceDetails() {
 
         if (isMounted) {
           setResource(resource);
+          console.log("Resource loaded:", resource);
         }
       } catch (requestError) {
         if (isMounted) {
@@ -148,7 +152,7 @@ export default function ResourceDetails() {
         <Stack spacing={3}>
           <Button
             component={Link}
-            to="/resources"
+            to={`/resources?kind=${kind}`}
             startIcon={<ArrowBackIcon />}
             sx={{ alignSelf: "flex-start" }}
           >
@@ -165,8 +169,24 @@ export default function ResourceDetails() {
           {!loading && error && <Alert severity="error">{error}</Alert>}
 
           {!loading && !error && resource && (
+            <>
             <ResourceInfo title="Resource" resource={resource} />
+             { kind === "variable" && <SecretDetails resource={resource} /> }
+            </>
           )}
+
+          {!loading && !error && resource && (
+            <>
+             { kind === "group" && <GroupDetails resource={resource} /> }
+            </>
+          )}
+
+           {!loading && !error && resource && (
+            <>
+             { kind === "policy" && <PolicyDetails resource={resource} /> }
+            </>
+          )}
+
         </Stack>
       </Container>
     </Box>
