@@ -16,7 +16,7 @@ function normalizeAuthenticators(response: AuthenticatorsV2ListResponse): Authen
 
 export const authenticatorsService = {
   list(params: ListAuthenticatorsV2QueryRequest = {}) {
-    return apiRequest<AuthenticatorsV2ListResponse>('/authenticators/' + localStorage.getItem(ACCOUNT)?.trim(), {
+    return apiRequest<AuthenticatorsV2ListEnvelopeResponse>('/authenticators/' + localStorage.getItem(ACCOUNT)?.trim(), {
       query: params,
       headers: {
         accept: 'application/x.secretsmgr.v2beta+json',

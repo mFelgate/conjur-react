@@ -24,6 +24,7 @@ import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { AuthProvider } from "./auth/AuthContext";
@@ -40,6 +41,7 @@ import Resources from "./pages/resources/Resources.jsx";
 import ResourceDetail from "./pages/resources/ResourceDetails.jsx";
 import Secrets from "./pages/secrets/Secrets.jsx";
 import Groups from "./pages/members/Groups.jsx";
+import Dashboard from "./pages/dashboard/dashboard.jsx";
 import GroupDetails from "./pages/members/GroupDetails.jsx";
 import SecretDetails from "./pages/secrets/SecretDetails.jsx";
 import "./App.css";
@@ -82,6 +84,10 @@ function NavBar() {
 
   />
           <List>
+            <ListItemButton component={Link} to="/dashboard">
+              <DashboardIcon sx={{ mr: 2 }} />
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
             <ListItemButton component={Link} to="/resources">
               <Inventory2OutlinedIcon sx={{ mr: 2 }} />
               <ListItemText primary="Resources" />
@@ -182,6 +188,14 @@ function AppShell() {
               element={
                 <ProtectedRoute>
                   <Policies />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />

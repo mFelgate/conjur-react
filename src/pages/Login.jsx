@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await login({ account, login: loginName, apiKey })
       localStorage.setItem(ACCOUNT, account)
-      navigate('/resources')
+      navigate('/dashboard')
     } catch (requestError) {
       setLocalError(requestError instanceof Error ? requestError.message : 'Login failed.')
     }

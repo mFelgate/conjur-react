@@ -26,9 +26,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 // Service-layer import (Angular-style service pattern).
 // The page calls this service; it does not call fetch() directly.
 import { resourcesService } from "../../services";
-
 function ResourceItem({ resource }) {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const parts = String(resource.id ?? "").split(":");
   return (
     <TableRow
@@ -144,19 +143,27 @@ export default function Resources() {
 
   return (
     // Outer page spacing wrapper.
-   <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       {/* Content width container */}
-      <Container >
+      <Container>
         {/* Page title */}
+        <Stack justifyContent="space-between" alignItems="center">
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Resources
         </Typography>
 
-        {/* Intro text */}
+        {/* <Stack direction="row" spacing={2} flexWrap="wrap" p={1} sx={{ mb: 2 }}>
+          <ResourceCount type="host" />
+          <ResourceCount type="variable" />
+          <ResourceCount type="user" />
+          <ResourceCount type="group" />
+        </Stack> */}
+
         <Typography variant="body1">
           Browse and manage all resources in your Conjur instance.
         </Typography>
 
+      </Stack>
         {/* Vertical stack for form + status + list */}
         <Stack spacing={2} sx={{ mt: 3 }}>
           {/* Search field (client-side filter) */}

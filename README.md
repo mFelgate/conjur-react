@@ -1,8 +1,6 @@
 # Conjur UI React 
 
-A lightweight web interface for exploring and managing a local Conjur OSS environment.
-
-This project provides a modern React-based UI for Conjur OSS, focused on making it easier to explore Conjur concepts such as resources, secrets, authenticators, groups, and policies without needing to interact directly with the API.
+A lightweight React-based administration interface for Conjur OSS. It provides a modern web UI for managing resources, secrets, policies, groups, and authenticators while complementing the existing CLI and REST API.
 
 The goal is to provide a simple developer-friendly interface for learning, testing, and working with Conjur OSS.
 
