@@ -65,7 +65,7 @@ For production deployments, high-availability configurations, compliance reporti
 - ✅ View authenticator details
 - ✅ Enable Authenticators
 - ✅ Create Authenticators with V2 API
-- ⬜ dynamic forms for authentictors 
+- ✅ dynamic forms for authentictors 
 - ⬜ Authenticator validation/testing
 
 ### Policy Management
@@ -89,13 +89,13 @@ authorization relationships easier to understand.
 
   - Help answer "why does this identity have access to this resource?"
 
-- ⬜ Server-side resource search
+- ✅ Server-side resource search
 
   - Move filtering from the UI into API queries
 
   - Support searching large environments without loading all resources locally
 
-- ⬜ Resource pagination
+- ✅ Resource pagination
 
   - Add offset/limit pagination for large resource collections
 
@@ -122,55 +122,50 @@ https://github.com/cyberark/conjur/blob/master/CONTRIBUTING.mdgit
 
 ## Screenshots
 
+### Dashboard
+
+#### Dashboard Overview
+View an overview of the Conjur environment and common administration workflows.
+
+![Dashboard](./screenshots/dashboard.png)
+
+---
+
 ### Resources
 
 #### Resources List
 Browse all Conjur resources with filtering and quick access to resource details.
+This includes server side filtering, searching and pagination
 
-![Resources List](./screenshots/resourcesView.png)
+![Resources List](./screenshots/resourcepage.png)
 
 #### Resource Details
-View resource metadata, annotations, permissions, and ownership.
+View resource metadata, annotations, permissions, and ownership. Different sections will be displayed based on resource type, like gorup, secret and policy.
 
-![Resource Details](./screenshots/resourceView.png)
+![Resource Details](./screenshots/ResourceDetails.png)
 
 ---
 
 ### Secrets
 
-#### Secrets List
-Browse all Conjur secrets available in the selected account.
-
-![Secrets List](./screenshots/SecretsView.png)
-
 #### Secret Details
 Inspect an individual secret and view its metadata.
 
-![Secret Details](./screenshots/SecretView.png)
+![Secret Details](./screenshots/SecretDetail.png)
 
 #### Edit Secret
 Update an existing secret directly from the UI.
 
-![Edit Secret](./screenshots/SecretViewEdit.png)
+![Edit Secret](./screenshots/EditSecret.png)
 
 ---
 
 ### Groups
 
-#### Groups List
-Browse all groups defined within Conjur.
+#### Group Management
+View and manage group membership within Conjur.
 
-![Groups List](./screenshots/GroupsView.png)
-
-#### Group Details
-View group information and current membership.
-
-![Group Details](./screenshots/GroupView.png)
-
-#### Edit Membership
-Add or remove members from a group.
-
-![Edit Membership](./screenshots/GroupViewEddit.png)
+![Edit Groups](./screenshots/EditGroups.png)
 
 ---
 
@@ -182,30 +177,35 @@ Browse all configured authenticators.
 ![Authenticators List](./screenshots/AuthenticatorsView.png)
 
 #### Authenticator Details
-View authenticator configuration and enable or update authenticators.
+View authenticator configuration and mange its secret values and groups.
 
-![Authenticator Details](./screenshots/AuthenticatorView.png)
+![Authenticator Details](./screenshots/AuthenticatorDetails.png)
+
+#### Create Authenticator
+Create authenticators using guided forms.
+
+![Create Authenticator](./screenshots/CreateAuthenticator.png)
+
+#### Create Authenticator - Multiple Types
+Create authenticators across multiple supported authentication methods.
+
+![Create Authenticator Multiple Types](./screenshots/CreateAuthenticatorMultipleTypes.png)
 
 ---
 
 ### Policy Management
 
-#### Policies List
-Browse policies loaded into Conjur.
+#### Effective Policy
+View the effective policy generated from loaded policy content.
 
-![Policies List](./screenshots/PoliciesView.png)
-
-#### Policy Details
-View the contents and metadata of an individual policy.
-
-![Policy Details](./screenshots/PolicyView.png)
+![Effective Policy](./screenshots/EffectivePolicy.png)
 
 #### Policy Editor
-Edit policies using the built-in YAML editor.
+Edit policies using the built-in YAML editor with validation feedback.
 
 ![Policy Editor](./screenshots/PolicyEditorErrorHandling.png)
 
-#### Dry Run Results
-Review the resources that will be created, updated, or deleted during a dry run.
+#### Policy Dry Run
+Review resources that will be created, updated, or deleted before loading a policy.
 
-![Dry Run Results](./screenshots/PolicyDryRun.png)
+![Policy Dry Run](./screenshots/PolicyDryRun.png)
